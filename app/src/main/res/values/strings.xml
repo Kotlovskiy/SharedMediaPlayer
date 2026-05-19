@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">SharedMediaPlayer</string>
+
+    <string name="create_room">Создать комнату</string>
+    <string name="join_room">Присоединиться к комнате</string>
+
+    <string name="music">Музыка</string>
+    <string name="participants">Участники</string>
+    <string name="add_song">Добавить песню</string>
+    <string name="add_participant">Добавить участника</string>
+</resources>
