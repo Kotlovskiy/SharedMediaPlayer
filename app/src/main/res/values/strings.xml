@@ -8,4 +8,15 @@
     <string name="participants">Участники</string>
     <string name="add_song">Добавить песню</string>
     <string name="add_participant">Добавить участника</string>
+    
+    <string name="rights_settings">Настройка прав</string>
+    <string name="all_participants_can">Все приглашённые могут:</string>
+    <string name="participant_can">Участник %1$s может:</string>
+    <string name="add_songs">Добавлять песни</string>
+    <string name="swap_songs">Менять местами песни</string>
+    <string name="delete_songs">Удалять песни</string>
+    <string name="suspend_song">Приостанавливать трек</string>
+    <string name="add_participants">Добавлять участников</string>
+    <string name="delete_participants">Удалять участников</string>
+
 </resources>
