@@ -27,44 +27,41 @@ class MainActivity : ComponentActivity() {
             SharedMediaPlayerTheme {
                 val navController = rememberNavController()
 
-                NavHost(
-                    navController = navController,
-                    startDestination = Main
-                ) {
-                    composable<Main> {
-                        Scaffold(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 16.dp)
-                        ) { innerPadding ->
-                            MainScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                onCreateRoom = {
-                                    navController.navigate(route = Room("Test room"))
-                                },
-                                onJoinRoom = {}
-                            )
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = Main,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable<Main> {
+                            AppContainer {
+                                MainScreen(
+                                    onCreateRoom = {
+                                        navController.navigate(route = Room("Test room"))
+                                    },
+                                    onJoinRoom = {}
+                                )
+                            }
                         }
-                    }
 
-                    composable<Room> { backStackEntry ->
-                        val room: Room = backStackEntry.toRoute()
-                        val viewModel: RoomViewModel by viewModels()
-                        Scaffold(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            topBar = { RoomTopBar(
-                                onBack = { navController.clearBackStack(route = Main) },
-                                onSettings = { navController.popBackStack() },
-                                title = room.name
-                            ) }
-                        ) { innerPadding ->
-                            Room(
-                                viewModel = viewModel,
-                                modifier =  Modifier
-                                    .padding(innerPadding)
-                                    .padding(horizontal = 16.dp)
-                            )
+                        composable<Room> { backStackEntry ->
+                            val room: Room = backStackEntry.toRoute()
+                            val viewModel: RoomViewModel by viewModels()
+
+                            AppContainer(
+                                topBar = { RoomTopBar(
+                                    onBack = { navController.clearBackStack(route = Main) },
+                                    onSettings = { navController.popBackStack() },
+                                    title = room.name
+                                ) }
+                            ) {
+                                Room(
+                                    viewModel = viewModel
+                                )
+                            }
                         }
                     }
                 }
