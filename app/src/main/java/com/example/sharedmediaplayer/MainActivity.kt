@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -56,8 +59,17 @@ class MainActivity : ComponentActivity() {
 
                             AppContainer(
                                 topBar = { RoomTopBar(
-                                    onBack = { navController.clearBackStack(route = Main) },
-                                    onSettings = { navController.navigate(route = SettingsDestination()) },
+                                    onBack = {
+                                        navController.navigate(route = Main) {
+                                            popUpTo(Main) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onSettings = {
+                                        navController.navigate(route = SettingsDestination())
+                                    },
                                     title = room.name
                                 ) }
                             ) {
@@ -73,7 +85,7 @@ class MainActivity : ComponentActivity() {
                             AppContainer(
                                 topBar = {
                                     SettingsTopBar(
-                                        onBack = { navController.popBackStack() },
+                                        onBack = { navController.safePopBackStack(backStackEntry) },
                                         title = stringResource(R.string.rights_settings)
                                     )
                                 }
@@ -86,6 +98,19 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    fun NavBackStackEntry.isResumed(): Boolean {
+        return this.lifecycle.currentState == Lifecycle.State.RESUMED
+    }
+
+    fun NavHostController.safePopBackStack(entry: NavBackStackEntry): Boolean {
+        return if (entry.isResumed()) {
+            popBackStack()
+            true
+        } else {
+            false
         }
     }
 }
