@@ -3,6 +3,7 @@ package com.example.sharedmediaplayer.room
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -65,6 +66,7 @@ fun Room(
 @Composable
 fun RoomTopBar(onBack: () -> Unit, onSettings: () -> Unit, title: String) {
     TopAppBar(
+        windowInsets = WindowInsets(0, 0, 0, 0),
         title = {
             Text(
                 text = title,
