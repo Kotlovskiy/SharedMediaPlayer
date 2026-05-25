@@ -25,7 +25,7 @@ fun Settings(
     id: Int?,
 ) {
     Column {
-        val title = if(id != null) {
+        val title = if(id == null) {
             stringResource(R.string.all_participants_can)
         } else {
             stringResource(R.string.participant_can, "№${id}")
