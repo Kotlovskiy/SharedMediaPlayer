@@ -82,8 +82,6 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable<SettingsDestination> { backStackEntry ->
-                            val settings: SettingsDestination = backStackEntry.toRoute()
-
                             AppContainer(
                                 topBar = {
                                     SettingsTopBar(
@@ -92,9 +90,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             ) {
-                                Settings(
-                                    id = settings.id
-                                )
+                                Settings()
                             }
                         }
                     }
