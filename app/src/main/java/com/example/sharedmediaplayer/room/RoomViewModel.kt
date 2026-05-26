@@ -4,9 +4,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sharedmediaplayer.room.RoomUiState.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class Song(
     val id: String,
@@ -21,14 +23,13 @@ data class Participant(
 )
 
 sealed class RoomUiState {
-    class MusicSuccess(val list: List<Song>) : RoomUiState()
-    class ParticipantSuccess(val list: List<Participant>) : RoomUiState()
+    data class MusicTab(val title: String, val list: List<Song>) : RoomUiState()
+    data class ParticipantsTab(val title: String, val list: List<Participant>) : RoomUiState()
     class Error : RoomUiState()
 }
 
 sealed class Intent {
     class OnBack : Intent()
-    class OnSettings : Intent()
     class OnParticipantsSwitch : Intent()
     class OnMusicsSwitch : Intent()
     class OnParticipantSettings(id: String) : Intent()
@@ -37,22 +38,23 @@ sealed class Intent {
     class OnDeleteSong(id: String) : Intent()
 }
 
-class RoomViewModel() : ViewModel() {
-    private val _state = MutableStateFlow<RoomUiState>(RoomUiState.MusicSuccess(listOf()))
+@HiltViewModel
+class RoomViewModel @Inject constructor() : ViewModel() {
+    private val _state = MutableStateFlow<RoomUiState>(MusicTab("1111", listOf()))
     val state: StateFlow<RoomUiState> = _state
 
     fun emit(intent: Intent) {
         viewModelScope.launch {
             when(intent) {
                 is Intent.OnBack -> TODO()
-                is Intent.OnMusicsSwitch -> _state.emit(MusicSuccess(listOf()))
+                is Intent.OnMusicsSwitch -> _state.emit(MusicTab("1111",listOf()))
                 is Intent.OnParticipantSettings -> TODO()
-                is Intent.OnParticipantsSwitch -> _state.emit(ParticipantSuccess(listOf()))
-                is Intent.OnSettings -> TODO()
+                is Intent.OnParticipantsSwitch -> _state.emit(ParticipantsTab("1111",listOf()))
                 is Intent.OnAddParticipant -> {
-                    val l = (_state.value as RoomUiState.ParticipantSuccess).list
+                    val l = (_state.value as ParticipantsTab).list
                     _state.emit(
-                        RoomUiState.ParticipantSuccess(
+                        ParticipantsTab(
+                            "1111",
                              l + Participant(l.size.toString(), "P ${l.size}")
                         )
                     )

@@ -22,7 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.sharedmediaplayer.AppContainer
 import com.example.sharedmediaplayer.R
 import com.example.sharedmediaplayer.ui.icons.add_circle
 import com.example.sharedmediaplayer.ui.icons.arrow_back
@@ -31,33 +33,92 @@ import com.example.sharedmediaplayer.ui.icons.more_vert
 import com.example.sharedmediaplayer.ui.icons.settings
 import com.example.sharedmediaplayer.ui.theme.Typography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Room(
-    viewModel: RoomViewModel,
-    modifier: Modifier = Modifier
+fun RoomScreen(
+    onBack: () -> Unit,
+    onSettings: () -> Unit,
+    viewModel: RoomViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = modifier.fillMaxSize()
+    AppContainer(
+        topBar = { RoomTopBar(
+            onBack = onBack,
+            onSettings = onSettings,
+            title = when(uiState) {
+                is RoomUiState.MusicTab -> (uiState as RoomUiState.MusicTab).title
+                is RoomUiState.ParticipantsTab -> (uiState as RoomUiState.ParticipantsTab).title
+                else -> ""
+            }
+        ) }
     ) {
+        when (uiState) {
+            is RoomUiState.Error -> {}
+            is RoomUiState.MusicTab -> MusicTab(
+                songs = (uiState as RoomUiState.MusicTab).list,
+                onSwitchToParticipants = { viewModel.emit(Intent.OnParticipantsSwitch()) },
+                onAddSong = { viewModel.emit(Intent.OnAddSong()) },
+                onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) }
+            )
+            is RoomUiState.ParticipantsTab -> ParticipantsTab(
+                participants = (uiState as RoomUiState.ParticipantsTab).list,
+                onSwitchToMusic = { viewModel.emit(Intent.OnMusicsSwitch()) },
+                onParticipantSettings = { viewModel.emit(Intent.OnParticipantSettings(it)) },
+                onAddParticipant = { viewModel.emit(Intent.OnAddParticipant()) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun MusicTab(
+    songs: List<Song>,
+    onSwitchToParticipants: () -> Unit,
+    onAddSong: () -> Unit,
+    onDeleteSong: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxSize()) {
         RoomSegmentedTabs(
-            currentState = uiState,
-            onMusicSwitch = { viewModel.emit(Intent.OnMusicsSwitch()) },
-            onParticipantsSwitch = { viewModel.emit(Intent.OnParticipantsSwitch()) }
+            selectedTab = Tab.MUSIC,
+            onMusicSwitch = {},
+            onParticipantsSwitch = onSwitchToParticipants
         )
 
         RoomAddButton(
-            uiState = uiState,
-            onAddSong = { viewModel.emit(Intent.OnAddSong()) },
-            onAddParticipant = { viewModel.emit(Intent.OnAddParticipant()) }
+            text = stringResource(R.string.add_song),
+            contentDescription = "",
+            onClick = onAddSong
         )
 
-        RoomContent(
-            uiState = uiState,
-            onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) },
-            onParticipantSettings = { viewModel.emit(Intent.OnParticipantSettings(it)) }
+        MusicList(list = songs, onDelete = onDeleteSong)
+    }
+}
+
+@Composable
+private fun ParticipantsTab(
+    participants: List<Participant>,
+    onSwitchToMusic: () -> Unit,
+    onAddParticipant: () -> Unit,
+    onParticipantSettings: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        RoomSegmentedTabs(
+            selectedTab = Tab.PARTICIPANTS,
+            onMusicSwitch = onSwitchToMusic,
+            onParticipantsSwitch = {}
+        )
+
+        RoomAddButton(
+            text = stringResource(R.string.add_participant),
+            contentDescription = "",
+            onClick = onAddParticipant
+        )
+
+        ParticipantList(
+            list = participants,
+            onMore = onParticipantSettings
         )
     }
 }
@@ -88,7 +149,7 @@ fun RoomTopBar(onBack: () -> Unit, onSettings: () -> Unit, title: String) {
 
 @Composable
 private fun RoomSegmentedTabs(
-    currentState: RoomUiState,
+    selectedTab: Tab,
     onMusicSwitch: () -> Unit,
     onParticipantsSwitch: () -> Unit
 ) {
@@ -96,14 +157,14 @@ private fun RoomSegmentedTabs(
         modifier = Modifier.fillMaxWidth(),
     ) {
         SegmentedButton(
-            selected = currentState is RoomUiState.MusicSuccess,
+            selected = selectedTab == Tab.MUSIC,
             onClick = onMusicSwitch,
             shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
         ) {
             Text(text = stringResource(R.string.music), style = Typography.labelLarge)
         }
         SegmentedButton(
-            selected = currentState is RoomUiState.ParticipantSuccess,
+            selected = selectedTab == Tab.PARTICIPANTS,
             onClick = onParticipantsSwitch,
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
         ) {
@@ -114,48 +175,18 @@ private fun RoomSegmentedTabs(
 
 @Composable
 private fun RoomAddButton(
-    uiState: RoomUiState,
-    onAddSong: () -> Unit,
-    onAddParticipant: () -> Unit
+    text: String,
+    contentDescription: String,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val (addText, onAddClick) = when (uiState) {
-            is RoomUiState.MusicSuccess -> Pair(
-                stringResource(R.string.add_song),
-                onAddSong
-            )
-            is RoomUiState.ParticipantSuccess -> Pair(
-                stringResource(R.string.add_participant),
-                onAddParticipant
-            )
-            is RoomUiState.Error -> Pair("", {})
+        Text(text = text, style = Typography.headlineSmall)
+        IconButton(onClick = onClick) {
+            Icon(imageVector = add_circle, contentDescription = contentDescription)
         }
-
-        Text(text = addText, style = Typography.headlineSmall)
-        IconButton(onClick = onAddClick) {
-            Icon(imageVector = add_circle, contentDescription = "")
-        }
-    }
-}
-
-
-@Composable
-private fun RoomContent(
-    uiState: RoomUiState,
-    onDeleteSong: (String) -> Unit,
-    onParticipantSettings: (String) -> Unit
-) {
-    when (uiState) {
-        is RoomUiState.MusicSuccess -> {
-            MusicList(list = uiState.list, onDelete = onDeleteSong)
-        }
-        is RoomUiState.ParticipantSuccess -> {
-            ParticipantList(list = uiState.list, onMore = onParticipantSettings)
-        }
-        is RoomUiState.Error -> {}
     }
 }
 
@@ -250,3 +281,5 @@ private fun ParticipantItem(
         }
     }
 }
+
+private enum class Tab { MUSIC, PARTICIPANTS }

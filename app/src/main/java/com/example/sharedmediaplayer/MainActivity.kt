@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -17,9 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.sharedmediaplayer.room.Room
-import com.example.sharedmediaplayer.room.RoomTopBar
-import com.example.sharedmediaplayer.room.RoomViewModel
+import com.example.sharedmediaplayer.room.RoomDestination
+import com.example.sharedmediaplayer.room.RoomScreen
 import com.example.sharedmediaplayer.settings.Settings
 import com.example.sharedmediaplayer.settings.SettingsDestination
 import com.example.sharedmediaplayer.settings.SettingsTopBar
@@ -48,37 +46,29 @@ class MainActivity : ComponentActivity() {
                             AppContainer {
                                 MainScreen(
                                     onCreateRoom = {
-                                        navController.navigate(route = Room("Test room"))
+                                        navController.navigate(route = RoomDestination("Test room"))
                                     },
                                     onJoinRoom = {}
                                 )
                             }
                         }
 
-                        composable<Room> { backStackEntry ->
-                            val room: Room = backStackEntry.toRoute()
-                            val viewModel: RoomViewModel by viewModels()
+                        composable<RoomDestination> { backStackEntry ->
+                            val room: RoomDestination = backStackEntry.toRoute()
 
-                            AppContainer(
-                                topBar = { RoomTopBar(
-                                    onBack = {
-                                        navController.navigate(route = Main) {
-                                            popUpTo(Main) {
-                                                inclusive = true
-                                            }
-                                            launchSingleTop = true
+                            RoomScreen(
+                                onBack = {
+                                    navController.navigate(route = Main) {
+                                        popUpTo(Main) {
+                                            inclusive = true
                                         }
-                                    },
-                                    onSettings = {
-                                        navController.navigate(route = SettingsDestination())
-                                    },
-                                    title = room.name
-                                ) }
-                            ) {
-                                Room(
-                                    viewModel = viewModel
-                                )
-                            }
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onSettings = {
+                                    navController.navigate(route = SettingsDestination())
+                                },
+                            )
                         }
 
                         composable<SettingsDestination> { backStackEntry ->
