@@ -43,14 +43,12 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable<Main> {
-                            AppContainer {
-                                MainScreen(
-                                    onCreateRoom = {
-                                        navController.navigate(route = RoomDestination("Test room"))
-                                    },
-                                    onJoinRoom = {}
-                                )
-                            }
+                            MainScreen(
+                                onCreateRoom = {
+                                    navController.navigate(route = RoomDestination("Test room"))
+                                },
+                                onJoinRoom = {}
+                            )
                         }
 
                         composable<RoomDestination> { backStackEntry ->
@@ -72,16 +70,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable<SettingsDestination> { backStackEntry ->
-                            AppContainer(
-                                topBar = {
-                                    SettingsTopBar(
-                                        onBack = { navController.safePopBackStack(backStackEntry) },
-                                        title = stringResource(R.string.rights_settings)
-                                    )
-                                }
-                            ) {
-                                Settings()
-                            }
+                            Settings(
+                                onBack = { navController.safePopBackStack(backStackEntry) },
+                            )
                         }
                     }
                 }

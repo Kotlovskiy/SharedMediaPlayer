@@ -19,74 +19,85 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.sharedmediaplayer.AppContainer
 import com.example.sharedmediaplayer.R
 import com.example.sharedmediaplayer.ui.icons.arrow_back
 import com.example.sharedmediaplayer.ui.theme.Typography
 
 @Composable
 fun Settings(
+    onBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.collectAsStateWithLifecycle()
-    Column {
-        val title = if(state.value.id == null) {
-            stringResource(R.string.all_participants_can)
-        } else {
-            stringResource(R.string.participant_can, "№${state.value.id}")
+    AppContainer(
+        topBar = {
+            SettingsTopBar(
+                onBack = onBack,
+                title = stringResource(R.string.rights_settings)
+            )
         }
+    ) {
+        val state = viewModel.state.collectAsStateWithLifecycle()
+        Column {
+            val title = if(state.value.id == null) {
+                stringResource(R.string.all_participants_can)
+            } else {
+                stringResource(R.string.participant_can, "№${state.value.id}")
+            }
 
-        Text(text = title, style = Typography.headlineMedium)
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().weight(1f)
-        ) {
-            val itemHeight = 60.dp
-            item {
-                SettingsListItem(
-                    checked = state.value.canAddSongs,
-                    onSwitch = { state -> viewModel.emit(Intent.SetCanAddSongs(state)) },
-                    title = stringResource(R.string.add_songs),
-                    modifier = Modifier.fillMaxWidth().height(itemHeight)
-                )
-            }
-            item {
-                SettingsListItem(
-                    checked = state.value.canSwapSongs,
-                    onSwitch = { state -> viewModel.emit(Intent.SetCanSwapSongs(state)) },
-                    title = stringResource(R.string.swap_songs),
-                    modifier = Modifier.fillMaxWidth().height(itemHeight)
-                )
-            }
-            item {
-                SettingsListItem(
-                    checked = state.value.canDeleteSongs,
-                    onSwitch = { state -> viewModel.emit(Intent.SetCanDeleteSongs(state)) },
-                    title = stringResource(R.string.delete_songs),
-                    modifier = Modifier.fillMaxWidth().height(itemHeight)
-                )
-            }
-            item {
-                SettingsListItem(
-                    checked = state.value.canSuspendSongs,
-                    onSwitch = { state -> viewModel.emit(Intent.SetCanSuspendSongs(state)) },
-                    title = stringResource(R.string.suspend_song),
-                    modifier = Modifier.fillMaxWidth().height(itemHeight)
-                )
-            }
-            item {
-                SettingsListItem(
-                    checked = state.value.canAddParticipants,
-                    onSwitch = { state -> viewModel.emit(Intent.SetCanAddParticipants(state)) },
-                    title = stringResource(R.string.add_participants),
-                    modifier = Modifier.fillMaxWidth().height(itemHeight)
-                )
-            }
-            item {
-                SettingsListItem(
-                    checked = state.value.canDeleteParticipants,
-                    onSwitch = { state -> viewModel.emit(Intent.SetCanDeleteParticipants(state)) },
-                    title = stringResource(R.string.delete_participants),
-                    modifier = Modifier.fillMaxWidth().height(itemHeight)
-                )
+            Text(text = title, style = Typography.headlineMedium)
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            ) {
+                val itemHeight = 60.dp
+                item {
+                    SettingsListItem(
+                        checked = state.value.canAddSongs,
+                        onSwitch = { state -> viewModel.emit(Intent.SetCanAddSongs(state)) },
+                        title = stringResource(R.string.add_songs),
+                        modifier = Modifier.fillMaxWidth().height(itemHeight)
+                    )
+                }
+                item {
+                    SettingsListItem(
+                        checked = state.value.canSwapSongs,
+                        onSwitch = { state -> viewModel.emit(Intent.SetCanSwapSongs(state)) },
+                        title = stringResource(R.string.swap_songs),
+                        modifier = Modifier.fillMaxWidth().height(itemHeight)
+                    )
+                }
+                item {
+                    SettingsListItem(
+                        checked = state.value.canDeleteSongs,
+                        onSwitch = { state -> viewModel.emit(Intent.SetCanDeleteSongs(state)) },
+                        title = stringResource(R.string.delete_songs),
+                        modifier = Modifier.fillMaxWidth().height(itemHeight)
+                    )
+                }
+                item {
+                    SettingsListItem(
+                        checked = state.value.canSuspendSongs,
+                        onSwitch = { state -> viewModel.emit(Intent.SetCanSuspendSongs(state)) },
+                        title = stringResource(R.string.suspend_song),
+                        modifier = Modifier.fillMaxWidth().height(itemHeight)
+                    )
+                }
+                item {
+                    SettingsListItem(
+                        checked = state.value.canAddParticipants,
+                        onSwitch = { state -> viewModel.emit(Intent.SetCanAddParticipants(state)) },
+                        title = stringResource(R.string.add_participants),
+                        modifier = Modifier.fillMaxWidth().height(itemHeight)
+                    )
+                }
+                item {
+                    SettingsListItem(
+                        checked = state.value.canDeleteParticipants,
+                        onSwitch = { state -> viewModel.emit(Intent.SetCanDeleteParticipants(state)) },
+                        title = stringResource(R.string.delete_participants),
+                        modifier = Modifier.fillMaxWidth().height(itemHeight)
+                    )
+                }
             }
         }
     }
