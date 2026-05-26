@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.sharedmediaplayer.R
 import com.example.sharedmediaplayer.ui.icons.arrow_back
 import com.example.sharedmediaplayer.ui.theme.Typography
@@ -24,6 +25,7 @@ import com.example.sharedmediaplayer.ui.theme.Typography
 @Composable
 fun Settings(
     id: Int?,
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
     Column {
         val title = if(id == null) {

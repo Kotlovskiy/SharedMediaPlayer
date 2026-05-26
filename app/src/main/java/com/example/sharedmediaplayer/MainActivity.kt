@@ -24,7 +24,9 @@ import com.example.sharedmediaplayer.settings.Settings
 import com.example.sharedmediaplayer.settings.SettingsDestination
 import com.example.sharedmediaplayer.settings.SettingsTopBar
 import com.example.sharedmediaplayer.ui.theme.SharedMediaPlayerTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
