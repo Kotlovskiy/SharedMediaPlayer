@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth">Авторизация</string>
+    <string name="registration">Регистрация</string>
+    <string name="email">Почта</string>
+    <string name="password">Пароль</string>
+    <string name="nickname">Ник</string>
+    <string name="enter">Войти</string>
+    <string name="register">Зарегистрировать</string>
+</resources>
