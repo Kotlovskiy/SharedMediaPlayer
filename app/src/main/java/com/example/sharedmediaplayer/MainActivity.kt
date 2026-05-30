@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -20,7 +19,6 @@ import com.example.sharedmediaplayer.room.RoomDestination
 import com.example.sharedmediaplayer.room.RoomScreen
 import com.example.sharedmediaplayer.settings.Settings
 import com.example.sharedmediaplayer.settings.SettingsDestination
-import com.example.sharedmediaplayer.settings.SettingsTopBar
 import com.example.sharedmediaplayer.ui.theme.SharedMediaPlayerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
