@@ -6,5 +6,5 @@
     <string name="password">Пароль</string>
     <string name="nickname">Ник</string>
     <string name="enter">Войти</string>
-    <string name="register">Зарегистрировать</string>
+    <string name="register">Зарегистрироваться</string>
 </resources>

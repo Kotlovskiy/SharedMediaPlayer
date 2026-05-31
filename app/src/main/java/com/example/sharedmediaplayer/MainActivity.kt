@@ -14,7 +14,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
+import com.example.auth.AuthDestination
+import com.example.auth.AuthNavHost
 import com.example.sharedmediaplayer.room.RoomDestination
 import com.example.sharedmediaplayer.room.RoomScreen
 import com.example.sharedmediaplayer.settings.Settings
@@ -37,9 +38,22 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = Main,
+                        startDestination = AuthDestination,
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable<AuthDestination> {
+                            AuthNavHost(
+                                toMainScreen = {
+                                    navController.navigate(route = Main) {
+                                        popUpTo(route = AuthDestination) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
+                        }
+
                         composable<Main> {
                             MainScreen(
                                 onCreateRoom = {
@@ -49,9 +63,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable<RoomDestination> { backStackEntry ->
-                            val room: RoomDestination = backStackEntry.toRoute()
-
+                        composable<RoomDestination> {
                             RoomScreen(
                                 onBack = {
                                     navController.navigate(route = Main) {
