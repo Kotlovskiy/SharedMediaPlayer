@@ -28,3 +28,6 @@ rootProject.name = "SharedMediaPlayer"
 include(":app")
 include(":core-network")
 include(":auth")
+include(":storage")
+include(":token-manager-api")
+include(":kotlin-manager-impl")

@@ -1,4 +1,4 @@
-package com.example.auth
+package com.example.auth.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -6,10 +6,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.auth.enter.Enter
-import com.example.auth.enter.EnterDestination
-import com.example.auth.registration.Registration
-import com.example.auth.registration.RegistrationDestination
+import com.example.auth.ui.enter.Enter
+import com.example.auth.ui.enter.EnterDestination
+import com.example.auth.ui.registration.Registration
+import com.example.auth.ui.registration.RegistrationDestination
 
 @Composable
 fun AuthNavHost(

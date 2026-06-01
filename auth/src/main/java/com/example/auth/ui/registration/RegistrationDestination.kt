@@ -1,4 +1,4 @@
-package com.example.auth.registration
+package com.example.auth.ui.registration
 
 import kotlinx.serialization.Serializable
 

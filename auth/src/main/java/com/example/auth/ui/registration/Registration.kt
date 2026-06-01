@@ -1,4 +1,4 @@
-package com.example.auth.registration
+package com.example.auth.ui.registration
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

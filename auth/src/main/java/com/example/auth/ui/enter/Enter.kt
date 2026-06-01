@@ -1,4 +1,4 @@
-package com.example.auth.enter
+package com.example.auth.ui.enter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

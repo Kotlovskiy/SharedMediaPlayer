@@ -31,6 +31,7 @@ android {
 
 dependencies {
     implementation(projects.coreNetwork)
+    implementation(libs.retrofit)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

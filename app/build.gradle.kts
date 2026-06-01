@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.storage)
+    implementation(projects.kotlinManagerImpl)
     implementation(projects.coreNetwork)
     implementation(projects.auth)
 

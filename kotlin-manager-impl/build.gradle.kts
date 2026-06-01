@@ -1,12 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    kotlin("plugin.serialization")
 }
 
 android {
-    namespace = "com.example.core_network"
+    namespace = "com.example.kotlin_manager_impl"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -27,13 +25,12 @@ android {
 }
 
 dependencies {
-    implementation(projects.tokenManagerApi)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.retrofit.converter)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
-    implementation(libs.retrofit)
-    implementation(libs.logging.interceptor)
+    api(projects.tokenManagerApi)
+    implementation(projects.coreNetwork)
+    implementation(projects.storage)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)

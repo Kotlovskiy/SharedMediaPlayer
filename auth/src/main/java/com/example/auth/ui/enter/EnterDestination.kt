@@ -1,4 +1,4 @@
-package com.example.auth.enter
+package com.example.auth.ui.enter
 
 import kotlinx.serialization.Serializable
 

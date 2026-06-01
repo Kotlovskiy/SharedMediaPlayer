@@ -14,8 +14,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.auth.AuthDestination
-import com.example.auth.AuthNavHost
+import com.example.auth.ui.AuthDestination
+import com.example.auth.ui.AuthNavHost
 import com.example.sharedmediaplayer.room.RoomDestination
 import com.example.sharedmediaplayer.room.RoomScreen
 import com.example.sharedmediaplayer.settings.Settings
