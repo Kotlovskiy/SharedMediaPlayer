@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    implementation(projects.tokenManagerApi)
+    implementation(projects.storage)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.converter)
     implementation(libs.hilt.android)

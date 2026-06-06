@@ -1,5 +1,19 @@
 package com.example.core_network
 
+import com.example.core_network.NetworkConstants.APPLICATION_JSON
+import com.example.core_network.NetworkConstants.BASE_URL
+import com.example.core_network.interceptor.SaveTokenInterceptor
+import com.example.core_network.interceptor.TokenAuthenticator
+import com.example.core_network.interceptor.TokenInterceptor
+import com.example.core_network.qualifier.AuthorizedOkHttpClient
+import com.example.core_network.qualifier.AuthorizedRetrofit
+import com.example.core_network.qualifier.UnauthorizedOkHttpClient
+import com.example.core_network.qualifier.UnauthorizedRetrofit
+import com.example.core_network.service.AuthService
+import com.example.core_network.service.LogoutService
+import com.example.core_network.service.RefreshService
+import com.example.core_network.service.RoomService
+import com.example.storage.TokenPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,24 +30,63 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://158.160.26.231:18080/itindr/api/mobile/"
-    private const val APPLICATION_JSON = "application/json"
-
     @Provides
-    @Singleton
     fun provideLoggingInterceptor() : HttpLoggingInterceptor {
         return HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)
     }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(
+    fun provideTokenInterceptor(tokenPreferences: TokenPreferences) : TokenInterceptor {
+        return TokenInterceptor(tokenPreferences)
+    }
+
+    @Provides
+    fun provideSaveTokenInterceptor(
+        tokenPreferences: TokenPreferences,
+        json: Json
+    ) : SaveTokenInterceptor {
+        return SaveTokenInterceptor(tokenPreferences, json)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenAuthenticator(
+        tokenPreferences: TokenPreferences,
+        json: Json,
+        @UnauthorizedOkHttpClient okHttpClient: OkHttpClient
+    ) : TokenAuthenticator {
+        return TokenAuthenticator(
+            tokenPreferences = tokenPreferences,
+            json = json,
+            client = okHttpClient
+        )
+    }
+
+    @UnauthorizedOkHttpClient
+    @Provides
+    @Singleton
+    fun provideUnauthorizedOkHttpClient(
+        saveTokenInterceptor: SaveTokenInterceptor,
+        loggingInterceptor: HttpLoggingInterceptor,
+    ) : OkHttpClient =
+        OkHttpClient.Builder()
+            .addInterceptor(saveTokenInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+    @AuthorizedOkHttpClient
+    @Provides
+    @Singleton
+    fun provideAuthorizedOkHttpClient(
         tokenInterceptor: TokenInterceptor,
-        loggingInterceptor: HttpLoggingInterceptor
+        loggingInterceptor: HttpLoggingInterceptor,
+        authenticator: TokenAuthenticator
     ) : OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(tokenInterceptor)
             .addInterceptor(loggingInterceptor)
+            .authenticator(authenticator)
             .build()
 
     @Provides
@@ -43,9 +96,26 @@ object NetworkModule {
             ignoreUnknownKeys = true
         }
 
+    @AuthorizedRetrofit
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient, json: Json) : Retrofit =
+    fun provideAuthorizedRetrofit(
+        @AuthorizedOkHttpClient client: OkHttpClient,
+        json: Json
+    ) : Retrofit =
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(json.asConverterFactory(APPLICATION_JSON.toMediaType()))
+            .build()
+
+    @UnauthorizedRetrofit
+    @Provides
+    @Singleton
+    fun provideUnauthorizedRetrofit(
+        @UnauthorizedOkHttpClient client: OkHttpClient,
+        json: Json
+    ) : Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
@@ -53,7 +123,22 @@ object NetworkModule {
             .build()
 
     @Provides
-    fun provideTokenService(retrofit: Retrofit) : TokenService {
-        return retrofit.create(TokenService::class.java)
+    fun provideAuthService(@UnauthorizedRetrofit retrofit: Retrofit): AuthService {
+        return retrofit.create(AuthService::class.java)
+    }
+
+    @Provides
+    fun provideLogoutService(@AuthorizedRetrofit retrofit: Retrofit) : LogoutService {
+        return retrofit.create(LogoutService::class.java)
+    }
+
+    @Provides
+    fun provideRefreshService(@AuthorizedRetrofit retrofit: Retrofit): RefreshService {
+        return retrofit.create(RefreshService::class.java)
+    }
+
+    @Provides
+    fun provideRoomService(@AuthorizedRetrofit retrofit: Retrofit): RoomService {
+        return retrofit.create(RoomService::class.java)
     }
 }

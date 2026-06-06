@@ -1,6 +1,6 @@
-package com.example.core_network
+package com.example.core_network.dto
 
-import com.example.token_manager_api.Token
+import com.example.storage.TokenPreferences.Token
 import kotlinx.serialization.Serializable
 
 @Serializable

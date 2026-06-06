@@ -2,9 +2,8 @@ package com.example.auth.ui.registration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.auth.data.RemoteDataSource
-import com.example.auth.data.model.AuthRequest
-import com.example.core_network.CommonRepository
+import com.example.auth.data.AuthDataSource
+import com.example.core_network.dto.AuthRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,8 +30,7 @@ sealed class NavAction {
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
-    private val dataSource: RemoteDataSource,
-    private val commonRepository: CommonRepository
+    private val dataSource: AuthDataSource
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(RegistrationUiState(
         email = "",
@@ -49,9 +47,7 @@ class RegistrationViewModel @Inject constructor(
             when(intent) {
                 is RegistrationIntent.ClickRegister -> {
                     dataSource.register(
-                        commonRepository.execute {
-                            AuthRequest(uiState.value.email, uiState.value.password)
-                        }
+                        AuthRequest(uiState.value.email, uiState.value.password)
                     )
                     _actions.emit(NavAction.ToMainScreen)
                 }

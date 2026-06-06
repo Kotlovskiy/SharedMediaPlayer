@@ -1,4 +1,4 @@
-package com.example.auth.data.model
+package com.example.core_network.dto
 
 import kotlinx.serialization.Serializable
 

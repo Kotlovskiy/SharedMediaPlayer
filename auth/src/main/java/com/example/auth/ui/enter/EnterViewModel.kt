@@ -2,8 +2,8 @@ package com.example.auth.ui.enter
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.auth.data.RemoteDataSource
-import com.example.auth.data.model.AuthRequest
+import com.example.auth.data.AuthDataSource
+import com.example.core_network.dto.AuthRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +29,7 @@ sealed class NavAction {
 
 @HiltViewModel
 class EnterViewModel @Inject constructor(
-    private val dataSource: RemoteDataSource
+    private val dataSource: AuthDataSource
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EnterUiState(email = "", password = ""))
     val uiState: StateFlow<EnterUiState> = _uiState

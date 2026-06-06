@@ -12,6 +12,20 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object StorageModule {
     @Provides
+    fun provideCryptoManager(): CryptoManager {
+        return CryptoManager()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenPreferences(
+        @ApplicationContext context: Context,
+        cryptoManager: CryptoManager
+    ): TokenPreferences {
+        return TokenPreferences(context = context, cryptoManager = cryptoManager)
+    }
+
+    @Provides
     @Singleton
     fun provideAppDataStore(
         @ApplicationContext context: Context
