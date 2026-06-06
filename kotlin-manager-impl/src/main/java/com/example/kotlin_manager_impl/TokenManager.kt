@@ -22,8 +22,7 @@ class TokenManager @Inject constructor(
     private var cachedRefreshTokenExpiredAt: String? = null
 
     init {
-        val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-        scope.launch {
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             cachedAccessToken = storage.getString(ACCESS_TOKEN_KEY)
             cachedRefreshToken = storage.getString(REFRESH_TOKEN_KEY)
             cachedAccessTokenExpiredAt = storage.getString(ACCESS_TOKEN_EXPIRED_AT_KEY)

@@ -52,6 +52,7 @@ object NetworkModule {
             .addConverterFactory(json.asConverterFactory(APPLICATION_JSON.toMediaType()))
             .build()
 
+    @Provides
     fun provideTokenService(retrofit: Retrofit) : TokenService {
         return retrofit.create(TokenService::class.java)
     }
