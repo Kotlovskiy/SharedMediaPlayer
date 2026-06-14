@@ -58,7 +58,7 @@ class TokenPreferences @Inject constructor(
         )?. let { cryptoManager.decryptBase64(it) }
 
         return expiration != null &&
-                OffsetDateTime.now() < ZonedDateTime.parse(expiration).toOffsetDateTime()
+            OffsetDateTime.now() < ZonedDateTime.parse(expiration).toOffsetDateTime()
     }
 
     fun isRefreshTokenValid(): Boolean {
@@ -68,7 +68,7 @@ class TokenPreferences @Inject constructor(
         )?. let { cryptoManager.decryptBase64(it) }
 
         return expiration != null &&
-                OffsetDateTime.now() < ZonedDateTime.parse(expiration).toOffsetDateTime()
+            OffsetDateTime.now() < ZonedDateTime.parse(expiration).toOffsetDateTime()
     }
 
     fun deleteToken() {

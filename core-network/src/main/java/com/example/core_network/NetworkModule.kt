@@ -31,13 +31,13 @@ import javax.inject.Singleton
 object NetworkModule {
 
     @Provides
-    fun provideLoggingInterceptor() : HttpLoggingInterceptor {
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)
     }
 
     @Provides
     @Singleton
-    fun provideTokenInterceptor(tokenPreferences: TokenPreferences) : TokenInterceptor {
+    fun provideTokenInterceptor(tokenPreferences: TokenPreferences): TokenInterceptor {
         return TokenInterceptor(tokenPreferences)
     }
 
@@ -45,7 +45,7 @@ object NetworkModule {
     fun provideSaveTokenInterceptor(
         tokenPreferences: TokenPreferences,
         json: Json
-    ) : SaveTokenInterceptor {
+    ): SaveTokenInterceptor {
         return SaveTokenInterceptor(tokenPreferences, json)
     }
 
@@ -55,7 +55,7 @@ object NetworkModule {
         tokenPreferences: TokenPreferences,
         json: Json,
         @UnauthorizedOkHttpClient okHttpClient: OkHttpClient
-    ) : TokenAuthenticator {
+    ): TokenAuthenticator {
         return TokenAuthenticator(
             tokenPreferences = tokenPreferences,
             json = json,
@@ -69,7 +69,7 @@ object NetworkModule {
     fun provideUnauthorizedOkHttpClient(
         saveTokenInterceptor: SaveTokenInterceptor,
         loggingInterceptor: HttpLoggingInterceptor,
-    ) : OkHttpClient =
+    ): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(saveTokenInterceptor)
             .addInterceptor(loggingInterceptor)
@@ -82,7 +82,7 @@ object NetworkModule {
         tokenInterceptor: TokenInterceptor,
         loggingInterceptor: HttpLoggingInterceptor,
         authenticator: TokenAuthenticator
-    ) : OkHttpClient =
+    ): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(tokenInterceptor)
             .addInterceptor(loggingInterceptor)
@@ -91,7 +91,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJson() : Json =
+    fun provideJson(): Json =
         Json {
             ignoreUnknownKeys = true
         }
@@ -102,7 +102,7 @@ object NetworkModule {
     fun provideAuthorizedRetrofit(
         @AuthorizedOkHttpClient client: OkHttpClient,
         json: Json
-    ) : Retrofit =
+    ): Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
@@ -115,7 +115,7 @@ object NetworkModule {
     fun provideUnauthorizedRetrofit(
         @UnauthorizedOkHttpClient client: OkHttpClient,
         json: Json
-    ) : Retrofit =
+    ): Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
@@ -128,7 +128,7 @@ object NetworkModule {
     }
 
     @Provides
-    fun provideLogoutService(@AuthorizedRetrofit retrofit: Retrofit) : LogoutService {
+    fun provideLogoutService(@AuthorizedRetrofit retrofit: Retrofit): LogoutService {
         return retrofit.create(LogoutService::class.java)
     }
 

@@ -11,7 +11,7 @@ data class TokenResponse(
     val refreshTokenExpiredAt: String,
 )
 
-fun TokenResponse.toToken() : Token {
+fun TokenResponse.toToken(): Token {
     return Token(
         accessToken = this.accessToken,
         refreshToken = this.refreshToken,

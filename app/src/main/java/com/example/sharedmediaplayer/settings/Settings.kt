@@ -39,7 +39,7 @@ fun Settings(
     ) {
         val state = viewModel.state.collectAsStateWithLifecycle()
         Column {
-            val title = if(state.value.id == null) {
+            val title = if (state.value.id == null) {
                 stringResource(R.string.all_participants_can)
             } else {
                 stringResource(R.string.participant_can, "№${state.value.id}")

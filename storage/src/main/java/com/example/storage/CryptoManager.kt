@@ -26,7 +26,7 @@ class CryptoManager {
         return decrypt(Base64.decode(data)).toString(Charsets.UTF_8)
     }
 
-    private fun encrypt(data: ByteArray) : ByteArray {
+    private fun encrypt(data: ByteArray): ByteArray {
         val encryptCypherInstance = Cipher.getInstance(TRANSFORMATION).apply {
             init(Cipher.ENCRYPT_MODE, getKey())
         }
@@ -42,7 +42,7 @@ class CryptoManager {
         return byteStream.toByteArray()
     }
 
-    private fun decrypt(data: ByteArray) : ByteArray {
+    private fun decrypt(data: ByteArray): ByteArray {
         DataInputStream(ByteArrayInputStream(data)).use {
             val ivSize = it.readInt()
             val iv = ByteArray(ivSize)

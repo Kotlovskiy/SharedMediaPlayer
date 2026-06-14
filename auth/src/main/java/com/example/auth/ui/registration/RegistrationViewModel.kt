@@ -44,7 +44,7 @@ class RegistrationViewModel @Inject constructor(
 
     fun emit(intent: RegistrationIntent) {
         viewModelScope.launch {
-            when(intent) {
+            when (intent) {
                 is RegistrationIntent.ClickRegister -> {
                     dataSource.register(
                         AuthRequest(uiState.value.email, uiState.value.password)

@@ -42,6 +42,7 @@ sonarqube {
         property("sonar.android.enable", "true")
 
         property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.organization", "kotlovskiy")
         property("sonar.token", System.getenv("SONAR_TOKEN")
             ?: project.findProperty("sonarToken") as String? ?: "")
     }

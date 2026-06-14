@@ -3,8 +3,8 @@ package com.example.core_network.interceptor
 import com.example.core_network.NetworkConstants
 import com.example.core_network.NetworkConstants.APPLICATION_JSON
 import com.example.core_network.NetworkConstants.BASE_URL
-import com.example.core_network.dto.TokenResponse
 import com.example.core_network.dto.RefreshTokenRequest
+import com.example.core_network.dto.TokenResponse
 import com.example.core_network.qualifier.AuthorizedOkHttpClient
 import com.example.storage.TokenPreferences
 import kotlinx.serialization.json.Json
@@ -24,7 +24,7 @@ class TokenAuthenticator @Inject constructor(
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
         val newToken = getFreshToken(response.request)
-        return if(newToken != null) {
+        return if (newToken != null) {
             response.request.newBuilder()
                 .header(
                     NetworkConstants.AUTHORIZATION_HEADER,
@@ -56,7 +56,7 @@ class TokenAuthenticator @Inject constructor(
         return newToken?.accessToken
     }
 
-    private fun refreshToken(refreshToken: String) : TokenPreferences.Token? {
+    private fun refreshToken(refreshToken: String): TokenPreferences.Token? {
         val body = RefreshTokenRequest(refreshToken)
         val request = Request.Builder()
             .url("${BASE_URL}v1/auth/refresh")

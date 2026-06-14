@@ -15,7 +15,7 @@ class SaveTokenInterceptor @Inject constructor(
     @Synchronized
     override fun intercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
-        if(response.isSuccessful) {
+        if (response.isSuccessful) {
             val body = response.body.string()
             val tokenResponse = json.decodeFromString<TokenResponse>(body)
             tokenPreferences.setNewToken(tokenResponse.toToken())

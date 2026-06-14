@@ -18,7 +18,7 @@ class AppDataStore @Inject constructor(context: Context) {
         context.preferencesDataStoreFile(DATA_STORE_NAME)
     }
 
-    suspend fun getString(key: Preferences.Key<String>) : String? {
+    suspend fun getString(key: Preferences.Key<String>): String? {
         return withContext(Dispatchers.IO) {
             dataStore.data.first()[key]
         }
@@ -40,7 +40,7 @@ class AppDataStore @Inject constructor(context: Context) {
         }
     }
 
-    fun observeString(key: Preferences.Key<String>) : Flow<String?> {
+    fun observeString(key: Preferences.Key<String>): Flow<String?> {
         return dataStore.data.map { it[key] }
     }
 

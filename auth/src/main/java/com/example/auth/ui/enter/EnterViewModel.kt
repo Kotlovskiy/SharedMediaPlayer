@@ -39,7 +39,7 @@ class EnterViewModel @Inject constructor(
 
     fun emit(intent: EnterIntent) {
         viewModelScope.launch {
-            when(intent) {
+            when (intent) {
                 is EnterIntent.ClickEnter -> {
                     dataSource.login(AuthRequest(uiState.value.email, uiState.value.password))
                     _actions.emit(NavAction.ToMainScreen)

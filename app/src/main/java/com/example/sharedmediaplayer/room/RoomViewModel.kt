@@ -45,17 +45,17 @@ class RoomViewModel @Inject constructor() : ViewModel() {
 
     fun emit(intent: Intent) {
         viewModelScope.launch {
-            when(intent) {
+            when (intent) {
                 is Intent.OnBack -> TODO()
-                is Intent.OnMusicsSwitch -> _state.emit(MusicTab("1111",listOf()))
+                is Intent.OnMusicsSwitch -> _state.emit(MusicTab("1111", listOf()))
                 is Intent.OnParticipantSettings -> TODO()
-                is Intent.OnParticipantsSwitch -> _state.emit(ParticipantsTab("1111",listOf()))
+                is Intent.OnParticipantsSwitch -> _state.emit(ParticipantsTab("1111", listOf()))
                 is Intent.OnAddParticipant -> {
                     val l = (_state.value as ParticipantsTab).list
                     _state.emit(
                         ParticipantsTab(
                             "1111",
-                             l + Participant(l.size.toString(), "P ${l.size}")
+                            l + Participant(l.size.toString(), "P ${l.size}")
                         )
                     )
                 }

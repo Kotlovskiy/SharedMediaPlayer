@@ -33,7 +33,7 @@ sealed class Intent {
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
-): ViewModel() {
+) : ViewModel() {
     private val route = savedStateHandle.toRoute<SettingsDestination>()
     private val _state = MutableStateFlow(SettingsUiState(
         id = route.id,

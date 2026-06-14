@@ -45,7 +45,7 @@ fun RoomScreen(
         topBar = { RoomTopBar(
             onBack = onBack,
             onSettings = onSettings,
-            title = when(uiState) {
+            title = when (uiState) {
                 is RoomUiState.MusicTab -> (uiState as RoomUiState.MusicTab).title
                 is RoomUiState.ParticipantsTab -> (uiState as RoomUiState.ParticipantsTab).title
                 else -> ""
