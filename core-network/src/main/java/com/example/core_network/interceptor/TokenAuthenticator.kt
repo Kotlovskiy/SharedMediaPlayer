@@ -20,7 +20,7 @@ import javax.inject.Inject
 class TokenAuthenticator @Inject constructor(
     private val tokenPreferences: TokenPreferences,
     private val json: Json,
-    @AuthorizedOkHttpClient private val client: OkHttpClient
+    @param:AuthorizedOkHttpClient private val client: OkHttpClient
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
         val newToken = getFreshToken(response.request)

@@ -11,6 +11,7 @@ import com.example.core_network.qualifier.UnauthorizedOkHttpClient
 import com.example.core_network.qualifier.UnauthorizedRetrofit
 import com.example.core_network.service.AuthService
 import com.example.core_network.service.LogoutService
+import com.example.core_network.service.QueueService
 import com.example.core_network.service.RefreshService
 import com.example.core_network.service.RoomService
 import com.example.storage.TokenPreferences
@@ -140,5 +141,10 @@ object NetworkModule {
     @Provides
     fun provideRoomService(@AuthorizedRetrofit retrofit: Retrofit): RoomService {
         return retrofit.create(RoomService::class.java)
+    }
+
+    @Provides
+    fun provideQueueService(@AuthorizedRetrofit retrofit: Retrofit): QueueService {
+        return retrofit.create(QueueService::class.java)
     }
 }
