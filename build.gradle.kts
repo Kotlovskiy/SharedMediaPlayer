@@ -31,7 +31,7 @@ sonarqube {
 
         property("sonar.profile", "Security Only")
 
-        property("sonar.modules", "app,auth,common-network-error,core-network,storage")
+        property("sonar.modules", "app,auth,common-network-error,core-network,storage,hello,room,settings,core-ui")
         property("sonar.sources", "src/main/java,src/main/kotlin")
         property("sonar.sourceEncoding", "UTF-8")
 

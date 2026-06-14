@@ -13,14 +13,19 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.ui.AuthDestination
 import com.example.auth.ui.AuthNavHost
-import com.example.sharedmediaplayer.room.RoomDestination
-import com.example.sharedmediaplayer.room.RoomScreen
-import com.example.sharedmediaplayer.settings.Settings
-import com.example.sharedmediaplayer.settings.SettingsDestination
-import com.example.sharedmediaplayer.ui.theme.SharedMediaPlayerTheme
+import com.example.room.ui.RoomTopBar
+import com.example.settings.ui.SettingsTopBar
+import com.example.room.ui.RoomDestination
+import com.example.room.ui.RoomScreen
+import com.example.settings.ui.Settings
+import com.example.settings.ui.SettingsDestination
+import com.example.core_ui.theme.SharedMediaPlayerTheme
+import com.example.hello.HelloDestination
+import com.example.hello.HelloScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,7 +39,43 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxSize(),
+                    topBar = {
+                        val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+                        val currentScreen = currentBackStackEntry?.destination?.route
+
+                        when (currentScreen) {
+                            RoomDestination::class.qualifiedName -> {
+                                RoomTopBar(
+                                    onBack = {
+                                        navController.navigate(route = HelloDestination) {
+                                            popUpTo(HelloDestination) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onSettings = {
+                                        navController.navigate(route = SettingsDestination())
+                                    },
+                                    title = ""
+                                )
+                            }
+                            SettingsDestination::class.qualifiedName -> {
+                                SettingsTopBar(
+                                    onBack = {
+                                        navController.navigate(route = RoomDestination) {
+                                            popUpTo(RoomDestination) {
+                                                inclusive = false
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    title = ""
+                                )
+                            }
+                        }
+                    }
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -44,7 +85,7 @@ class MainActivity : ComponentActivity() {
                         composable<AuthDestination> {
                             AuthNavHost(
                                 toMainScreen = {
-                                    navController.navigate(route = Main) {
+                                    navController.navigate(route = HelloDestination) {
                                         popUpTo(route = AuthDestination) {
                                             inclusive = true
                                         }
@@ -54,8 +95,8 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable<Main> {
-                            MainScreen(
+                        composable<HelloDestination> {
+                            HelloScreen(
                                 onCreateRoom = {
                                     navController.navigate(route = RoomDestination("Test room"))
                                 },
@@ -66,8 +107,8 @@ class MainActivity : ComponentActivity() {
                         composable<RoomDestination> {
                             RoomScreen(
                                 onBack = {
-                                    navController.navigate(route = Main) {
-                                        popUpTo(Main) {
+                                    navController.navigate(route = HelloDestination) {
+                                        popUpTo(HelloDestination) {
                                             inclusive = true
                                         }
                                         launchSingleTop = true

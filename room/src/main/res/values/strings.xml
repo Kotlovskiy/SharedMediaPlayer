@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music">Музыка</string>
+    <string name="participants">Участники</string>
+    <string name="add_song">Добавить песню</string>
+    <string name="add_participant">Добавить участника</string>
+</resources>
