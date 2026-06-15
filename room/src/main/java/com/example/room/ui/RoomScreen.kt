@@ -33,12 +33,19 @@ import com.example.room.R
 
 @Composable
 fun RoomScreen(
-    onBack: () -> Unit,
-    onSettings: () -> Unit,
+    setTopBarParams: (RoomTopBarParams) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    setTopBarParams(
+        RoomTopBarParams(
+            roomId = viewModel.roomId,
+            roomName = viewModel.roomName,
+            showSettingsButton = true,
+            onExit = { viewModel.emit(Intent.OnBack()) }
+        )
+    )
 
     when (uiState) {
         is RoomUiState.Error -> {}
@@ -114,7 +121,12 @@ private fun ParticipantsTab(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RoomTopBar(onBack: () -> Unit, onSettings: () -> Unit, title: String) {
+fun RoomTopBar(
+    onBack: () -> Unit,
+    onSettings: () -> Unit,
+    title: String,
+    showSettingsButton: Boolean
+) {
     TopAppBar(
         title = {
             Text(
@@ -128,8 +140,10 @@ fun RoomTopBar(onBack: () -> Unit, onSettings: () -> Unit, title: String) {
             }
         },
         actions = {
-            IconButton(onClick = onSettings) {
-                Icon(imageVector = settings, contentDescription = "")
+            if(showSettingsButton) {
+                IconButton(onClick = onSettings) {
+                    Icon(imageVector = settings, contentDescription = "")
+                }
             }
         }
     )

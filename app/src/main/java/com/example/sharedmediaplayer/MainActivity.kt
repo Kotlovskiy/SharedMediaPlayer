@@ -1,25 +1,24 @@
 package com.example.sharedmediaplayer
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.example.auth.ui.AuthDestination
 import com.example.auth.ui.AuthNavHost
+import com.example.core_ui.AppTopBarParams
 import com.example.room.ui.RoomTopBar
 import com.example.settings.ui.SettingsTopBar
 import com.example.room.ui.RoomDestination
@@ -29,6 +28,8 @@ import com.example.settings.ui.SettingsDestination
 import com.example.core_ui.theme.SharedMediaPlayerTheme
 import com.example.hello.HelloDestination
 import com.example.hello.HelloScreen
+import com.example.room.ui.RoomTopBarParams
+import com.example.settings.ui.SettingsTopBarParams
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,40 +40,51 @@ class MainActivity : ComponentActivity() {
         setContent {
             SharedMediaPlayerTheme {
                 val navController = rememberNavController()
+                var currentTopBarParams by remember {
+                    mutableStateOf<List<AppTopBarParams>>(listOf())
+                }
 
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize(),
                     topBar = {
-                        val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-                        val currentScreen = currentBackStackEntry?.destination?.route
+                        if(currentTopBarParams.isNotEmpty()) {
+                            when(currentTopBarParams.last()) {
+                                is RoomTopBarParams -> {
+                                    RoomTopBar(
+                                        onBack = {
+                                            (currentTopBarParams.last() as RoomTopBarParams)
+                                                .onExit.invoke()
 
-                        when (
-                            currentScreen
-                            ?.substringBefore("/")
-                            ?.substringBefore("?")
-                        ) {
-                            RoomDestination::class.qualifiedName -> {
-                                val params = currentBackStackEntry?.toRoute<RoomDestination>()
-                                RoomTopBar(
-                                    onBack = {
-                                        navController.navigate(route = HelloDestination) {
-                                            popUpTo(HelloDestination) {
-                                                inclusive = false
+                                            currentTopBarParams = currentTopBarParams.dropLast(1)
+
+                                            navController.navigate(route = HelloDestination) {
+                                                popUpTo(HelloDestination) {
+                                                    inclusive = false
+                                                }
+                                                launchSingleTop = true
                                             }
-                                            launchSingleTop = true
+                                        },
+                                        onSettings = {
+                                            navController.navigate(route = SettingsDestination())
+                                        },
+                                        title =
+                                            (currentTopBarParams.last() as RoomTopBarParams)
+                                                .roomName,
+                                        showSettingsButton =
+                                            (currentTopBarParams.last() as RoomTopBarParams)
+                                                .showSettingsButton
+                                    )
+                                }
+                                is SettingsTopBarParams -> {
+                                    SettingsTopBar(
+                                        onBack = {
+                                            navController.navigateUp()
+                                            currentTopBarParams = currentTopBarParams.dropLast(1)
                                         }
-                                    },
-                                    onSettings = {
-                                        navController.navigate(route = SettingsDestination())
-                                    },
-                                    title = params?.name ?: ""
-                                )
-                            }
-                            SettingsDestination::class.qualifiedName -> {
-                                SettingsTopBar(
-                                    onBack = { navController.navigateUp() }
-                                )
+                                    )
+                                }
+                                else -> {}
                             }
                         }
                     }
@@ -98,7 +110,10 @@ class MainActivity : ComponentActivity() {
                         composable<HelloDestination> {
                             HelloScreen(
                                 onCreateRoom = {
-                                    navController.navigate(route = RoomDestination("Test room"))
+                                    navController.navigate(route = RoomDestination(
+                                        "",
+                                        "Test room"
+                                    ))
                                 },
                                 onJoinRoom = {}
                             )
@@ -106,43 +121,22 @@ class MainActivity : ComponentActivity() {
 
                         composable<RoomDestination> {
                             RoomScreen(
-                                onBack = {
-                                    navController.navigate(route = HelloDestination) {
-                                        popUpTo(HelloDestination) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onSettings = {
-                                    navController.navigate(route = SettingsDestination())
+                                setTopBarParams = { params ->
+                                    currentTopBarParams = currentTopBarParams + params
                                 },
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                             )
                         }
 
-                        composable<SettingsDestination> { backStackEntry ->
+                        composable<SettingsDestination> {
                             Settings(
-                                onBack = { navController.safePopBackStack(backStackEntry) },
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                             )
+                            currentTopBarParams = currentTopBarParams + SettingsTopBarParams
                         }
                     }
                 }
             }
-        }
-    }
-
-    fun NavBackStackEntry.isResumed(): Boolean {
-        return this.lifecycle.currentState == Lifecycle.State.RESUMED
-    }
-
-    fun NavHostController.safePopBackStack(entry: NavBackStackEntry): Boolean {
-        return if (entry.isResumed()) {
-            popBackStack()
-            true
-        } else {
-            false
         }
     }
 }

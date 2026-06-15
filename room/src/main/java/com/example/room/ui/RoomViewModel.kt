@@ -1,7 +1,9 @@
 package com.example.room.ui
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,8 +23,8 @@ data class Participant(
 )
 
 sealed class RoomUiState {
-    data class MusicTab(val title: String, val list: List<Song>) : RoomUiState()
-    data class ParticipantsTab(val title: String, val list: List<Participant>) : RoomUiState()
+    data class MusicTab(val list: List<Song>) : RoomUiState()
+    data class ParticipantsTab(val list: List<Participant>) : RoomUiState()
     class Error : RoomUiState()
 }
 
@@ -37,37 +39,33 @@ sealed class Intent {
 }
 
 @HiltViewModel
-class RoomViewModel @Inject constructor() : ViewModel() {
+class RoomViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val _state = MutableStateFlow<RoomUiState>(
-        RoomUiState.MusicTab(
-            "1111",
-            listOf()
-        )
+        RoomUiState.MusicTab(listOf())
     )
     val state: StateFlow<RoomUiState> = _state
+
+    private val route = savedStateHandle.toRoute<RoomDestination>()
+    val roomId = route.roomId
+    val roomName = route.roomName
 
     fun emit(intent: Intent) {
         viewModelScope.launch {
             when (intent) {
                 is Intent.OnBack -> TODO()
                 is Intent.OnMusicsSwitch -> _state.emit(
-                    RoomUiState.MusicTab(
-                        "1111",
-                        listOf()
-                    )
+                    RoomUiState.MusicTab(listOf())
                 )
                 is Intent.OnParticipantSettings -> TODO()
                 is Intent.OnParticipantsSwitch -> _state.emit(
-                    RoomUiState.ParticipantsTab(
-                        "1111",
-                        listOf()
-                    )
+                    RoomUiState.ParticipantsTab(listOf())
                 )
                 is Intent.OnAddParticipant -> {
                     val l = (_state.value as RoomUiState.ParticipantsTab).list
                     _state.emit(
                         RoomUiState.ParticipantsTab(
-                            "1111",
                             l + Participant(l.size.toString(), "P ${l.size}")
                         )
                     )

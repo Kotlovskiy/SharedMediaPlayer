@@ -24,7 +24,6 @@ import com.example.settings.R
 
 @Composable
 fun Settings(
-    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
