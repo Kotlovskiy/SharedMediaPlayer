@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
                 var currentTopBarParams by remember {
                     mutableStateOf<List<AppTopBarParams>>(listOf())
                 }
+                val snackBarHostState = remember { SnackbarHostState() }
 
                 Scaffold(
                     modifier = Modifier
@@ -87,6 +90,9 @@ class MainActivity : ComponentActivity() {
                                 else -> {}
                             }
                         }
+                    },
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackBarHostState)
                     }
                 ) { innerPadding ->
                     NavHost(
@@ -124,7 +130,8 @@ class MainActivity : ComponentActivity() {
                                 setTopBarParams = { params ->
                                     currentTopBarParams = currentTopBarParams + params
                                 },
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                                showError = { error -> snackBarHostState.showSnackbar(error) }
                             )
                         }
 

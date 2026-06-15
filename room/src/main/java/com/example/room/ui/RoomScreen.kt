@@ -40,7 +40,7 @@ import com.example.room.domain.Song
 @Composable
 fun RoomScreen(
     setTopBarParams: (RoomTopBarParams) -> Unit,
-    showError: (String) -> Unit,
+    showError: suspend (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel()
 ) {
