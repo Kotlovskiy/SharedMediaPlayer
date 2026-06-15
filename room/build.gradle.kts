@@ -32,6 +32,9 @@ android {
 dependencies {
     implementation(projects.coreUi)
     implementation(projects.coreNetwork)
+    implementation(projects.commonNetworkError)
+
+    implementation(libs.retrofit)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

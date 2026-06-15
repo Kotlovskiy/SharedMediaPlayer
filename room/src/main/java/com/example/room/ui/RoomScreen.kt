@@ -14,13 +14,17 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil3.compose.AsyncImage
 import com.example.core_ui.icons.add_circle
 import com.example.core_ui.icons.arrow_back
@@ -30,14 +34,25 @@ import com.example.core_ui.icons.more_vert
 import com.example.core_ui.icons.settings
 import com.example.core_ui.theme.Typography
 import com.example.room.R
+import com.example.room.domain.Participant
+import com.example.room.domain.Song
 
 @Composable
 fun RoomScreen(
     setTopBarParams: (RoomTopBarParams) -> Unit,
+    showError: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel()
 ) {
+    val commonErrorText = stringResource(com.example.core_ui.R.string.smt_went_wrong)
+    val internetErrorText = stringResource(com.example.core_ui.R.string.check_connection)
+    val serverErrorText = stringResource(com.example.core_ui.R.string.server_error)
+    val notFoundErrorText = stringResource(R.string.not_found)
+    val forbiddenErrorText = stringResource(R.string.access_denied)
+
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     setTopBarParams(
         RoomTopBarParams(
             roomId = viewModel.roomId,
@@ -46,6 +61,21 @@ fun RoomScreen(
             onExit = { viewModel.emit(Intent.OnBack()) }
         )
     )
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.effect.collect { effect ->
+                when(effect) {
+                    RoomEffect.ShowUnknownError -> showError(commonErrorText)
+                    RoomEffect.ShowInternetError -> showError(internetErrorText)
+                    RoomEffect.ShowServerError -> showError(serverErrorText)
+                    RoomEffect.UnauthorizedError -> {/*onLogoutAction()*/}
+                    RoomEffect.ShowForbiddenError -> showError(forbiddenErrorText)
+                    RoomEffect.ShowNotFoundError -> showError(notFoundErrorText)
+                }
+            }
+        }
+    }
 
     when (uiState) {
         is RoomUiState.Error -> {}

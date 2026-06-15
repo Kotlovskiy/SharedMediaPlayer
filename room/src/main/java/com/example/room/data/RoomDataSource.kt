@@ -1,0 +1,90 @@
+package com.example.room.data
+
+import com.example.core_network.ApiResult
+import com.example.core_network.dto.queue.AddTrackRequest
+import com.example.core_network.dto.queue.MoveTrackRequest
+import com.example.core_network.service.QueueService
+import com.example.core_network.service.RoomService
+import com.example.core_network.toApiResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.IOException
+import javax.inject.Inject
+
+class RoomDataSource @Inject constructor(
+    private val roomApi: RoomService,
+    private val queueApi: QueueService,
+) {
+    suspend fun getRoom(roomId: String) = withContext(Dispatchers.IO) {
+        try {
+            roomApi.getRoom(roomId).toApiResult()
+        } catch (e: IOException) {
+            ApiResult.NetworkException(e)
+        }
+    }
+
+    suspend fun addSong(
+        roomId: String,
+        url: String
+    ) = withContext(Dispatchers.IO) {
+        try {
+            queueApi.addSong(roomId = roomId, request = AddTrackRequest(url)).toApiResult()
+        } catch (e: IOException) {
+            ApiResult.NetworkException(e)
+        }
+    }
+
+    suspend fun getQueue(roomId: String) = withContext(Dispatchers.IO) {
+        try {
+            queueApi.getQueue(roomId).toApiResult()
+        } catch (e: IOException) {
+            ApiResult.NetworkException(e)
+        }
+    }
+
+    suspend fun getSong(roomId: String) = withContext(Dispatchers.IO) {
+        try {
+            queueApi.getSong(roomId).toApiResult()
+        } catch (e: IOException) {
+            ApiResult.NetworkException(e)
+        }
+    }
+
+    suspend fun moveSong(
+        roomId: String,
+        trackId: String,
+        newPosition: Int
+    ) = withContext(Dispatchers.IO) {
+        try {
+            queueApi.moveSong(
+                roomId = roomId,
+                trackId = trackId,
+                moveTrackRequest = MoveTrackRequest(newPosition)
+            ).toApiResult()
+        } catch (e: IOException) {
+            ApiResult.NetworkException(e)
+        }
+    }
+
+    suspend fun deleteSong(
+        roomId: String,
+        trackId: String
+    ) = withContext(Dispatchers.IO) {
+        try {
+            queueApi.deleteSong(
+                roomId = roomId,
+                trackId = trackId
+            ).toApiResult()
+        } catch (e: IOException) {
+            ApiResult.NetworkException(e)
+        }
+    }
+
+    suspend fun deleteAllSongs(roomId: String) = withContext(Dispatchers.IO) {
+        try {
+            queueApi.deleteAllSongs(roomId).toApiResult()
+        } catch (e: IOException) {
+            ApiResult.NetworkException(e)
+        }
+    }
+}

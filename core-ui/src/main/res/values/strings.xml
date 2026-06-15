@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="check_connection">Проверьте интернет соединение</string>
+    <string name="server_error">Ошибка сервера</string>
+    <string name="smt_went_wrong">Что-то пошло не так</string>
+</resources>

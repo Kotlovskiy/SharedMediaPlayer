@@ -6,4 +6,7 @@
     <string name="add_participant">Добавить участника</string>
     <string name="add_song_description">Кнопка добавления песни</string>
     <string name="add_participant_description">Кнопка добавления участника</string>
+
+    <string name="not_found">Комната не найдена</string>
+    <string name="access_denied">Недостаточно прав</string>
 </resources>
