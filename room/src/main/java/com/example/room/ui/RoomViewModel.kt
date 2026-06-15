@@ -1,6 +1,5 @@
 package com.example.room.ui
 
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,7 +10,7 @@ import javax.inject.Inject
 
 data class Song(
     val id: String,
-    val image: ImageBitmap,
+    val url: String,
     val title: String,
     val artist: String
 )

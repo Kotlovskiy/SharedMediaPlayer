@@ -1,6 +1,5 @@
 package com.example.room.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,13 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.example.core_ui.icons.add_circle
 import com.example.core_ui.icons.arrow_back
 import com.example.core_ui.icons.delete
+import com.example.core_ui.icons.image
 import com.example.core_ui.icons.more_vert
 import com.example.core_ui.icons.settings
 import com.example.core_ui.theme.Typography
@@ -75,7 +76,7 @@ private fun MusicTab(
 
         RoomAddButton(
             text = stringResource( R.string.add_song),
-            contentDescription = "",
+            contentDescription = stringResource(R.string.add_song_description),
             onClick = onAddSong
         )
 
@@ -100,7 +101,7 @@ private fun ParticipantsTab(
 
         RoomAddButton(
             text = stringResource(R.string.add_participant),
-            contentDescription = "",
+            contentDescription = stringResource(R.string.add_participant_description),
             onClick = onAddParticipant
         )
 
@@ -188,7 +189,7 @@ private fun MusicList(
             key = { _, item -> item.id }
         ) { _, item ->
             SongItem(
-                imageBitmap = item.image,
+                url = item.url,
                 title = item.title,
                 artist = item.artist,
                 onDelete = { onDelete(item.id) }
@@ -217,7 +218,7 @@ private fun ParticipantList(
 
 @Composable
 private fun SongItem(
-    imageBitmap: ImageBitmap,
+    url: String,
     title: String,
     artist: String,
     onDelete: () -> Unit,
@@ -227,9 +228,10 @@ private fun SongItem(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            bitmap = imageBitmap,
-            contentDescription = null
+        AsyncImage(
+            model = url,
+            contentDescription = null,
+            placeholder = rememberVectorPainter(image)
         )
         Column(
             modifier = Modifier.weight(1f)

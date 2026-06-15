@@ -4,4 +4,6 @@
     <string name="participants">Участники</string>
     <string name="add_song">Добавить песню</string>
     <string name="add_participant">Добавить участника</string>
+    <string name="add_song_description">Кнопка добавления песни</string>
+    <string name="add_participant_description">Кнопка добавления участника</string>
 </resources>
