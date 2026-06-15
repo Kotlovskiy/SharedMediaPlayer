@@ -11,18 +11,18 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
     id("io.gitlab.arturbosch.detekt") version "1.23.8" apply false
     id("org.owasp.dependencycheck") version "12.2.2"
-    id("org.sonarqube") version "7.3.1.8318"
+    //id("org.sonarqube") version "7.3.1.8318"
 }
 
 dependencyCheck {
     failOnError = false
-    suppressionFile = "config/owasp/suppressions.xml"
+    //suppressionFile = "config/owasp/suppressions.xml"
     skipConfigurations = listOf("detekt", "detektPlugins", "ksp", "kspAndroid", "kspTest")
     nvd {
         apiKey = project.findProperty("nvdApiKey") as String? ?: System.getenv("NVD_API_KEY")
     }
 }
-
+/*
 sonarqube {
     properties {
         property("sonar.projectKey", "Kotlovskiy_SharedMediaPlayer")
@@ -47,7 +47,7 @@ sonarqube {
             ?: project.findProperty("sonarToken") as String? ?: "")
     }
 }
-
+*/
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
 

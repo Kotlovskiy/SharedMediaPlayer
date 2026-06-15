@@ -3,8 +3,6 @@ package com.example.room.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -36,51 +34,26 @@ import com.example.room.R
 fun RoomScreen(
     onBack: () -> Unit,
     onSettings: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
-/*
-    AppContainer(
-        topBar = { RoomTopBar(
-            onBack = onBack,
-            onSettings = onSettings,
-            title = when (uiState) {
-                is RoomUiState.MusicTab -> (uiState as RoomUiState.MusicTab).title
-                is RoomUiState.ParticipantsTab -> (uiState as RoomUiState.ParticipantsTab).title
-                else -> ""
-            }
-        ) }
-    ) {
-        when (uiState) {
-            is RoomUiState.Error -> {}
-            is RoomUiState.MusicTab -> MusicTab(
-                songs = (uiState as RoomUiState.MusicTab).list,
-                onSwitchToParticipants = { viewModel.emit(Intent.OnParticipantsSwitch()) },
-                onAddSong = { viewModel.emit(Intent.OnAddSong()) },
-                onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) }
-            )
-            is RoomUiState.ParticipantsTab -> ParticipantsTab(
-                participants = (uiState as RoomUiState.ParticipantsTab).list,
-                onSwitchToMusic = { viewModel.emit(Intent.OnMusicsSwitch()) },
-                onParticipantSettings = { viewModel.emit(Intent.OnParticipantSettings(it)) },
-                onAddParticipant = { viewModel.emit(Intent.OnAddParticipant()) }
-            )
-        }
-    }
- */
+
     when (uiState) {
         is RoomUiState.Error -> {}
         is RoomUiState.MusicTab -> MusicTab(
             songs = (uiState as RoomUiState.MusicTab).list,
             onSwitchToParticipants = { viewModel.emit(Intent.OnParticipantsSwitch()) },
             onAddSong = { viewModel.emit(Intent.OnAddSong()) },
-            onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) }
+            onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) },
+            modifier = modifier
         )
         is RoomUiState.ParticipantsTab -> ParticipantsTab(
             participants = (uiState as RoomUiState.ParticipantsTab).list,
             onSwitchToMusic = { viewModel.emit(Intent.OnMusicsSwitch()) },
             onParticipantSettings = { viewModel.emit(Intent.OnParticipantSettings(it)) },
-            onAddParticipant = { viewModel.emit(Intent.OnAddParticipant()) }
+            onAddParticipant = { viewModel.emit(Intent.OnAddParticipant()) },
+            modifier = modifier
         )
     }
 }
@@ -93,7 +66,7 @@ private fun MusicTab(
     onDeleteSong: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier) {
         RoomSegmentedTabs(
             selectedTab = Tab.MUSIC,
             onMusicSwitch = {},
@@ -118,7 +91,7 @@ private fun ParticipantsTab(
     onParticipantSettings: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier) {
         RoomSegmentedTabs(
             selectedTab = Tab.PARTICIPANTS,
             onMusicSwitch = onSwitchToMusic,
@@ -142,7 +115,6 @@ private fun ParticipantsTab(
 @Composable
 fun RoomTopBar(onBack: () -> Unit, onSettings: () -> Unit, title: String) {
     TopAppBar(
-        windowInsets = WindowInsets(0, 0, 0, 0),
         title = {
             Text(
                 text = title,

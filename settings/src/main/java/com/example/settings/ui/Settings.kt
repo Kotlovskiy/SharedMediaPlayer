@@ -2,7 +2,6 @@ package com.example.settings.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,22 +25,11 @@ import com.example.settings.R
 @Composable
 fun Settings(
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    /*
-    AppContainer(
-        topBar = {
-            SettingsTopBar(
-                onBack = onBack,
-                title = stringResource(R.string.rights_settings)
-            )
-        }
-    ) {
-
-    }
-     */
     val state = viewModel.state.collectAsStateWithLifecycle()
-    Column {
+    Column(modifier = modifier) {
         val title = if (state.value.id == null) {
             stringResource(R.string.all_participants_can)
         } else {
@@ -108,14 +96,12 @@ fun Settings(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsTopBar(
-    onBack: () -> Unit,
-    title: String
+    onBack: () -> Unit
 ) {
     TopAppBar(
-        windowInsets = WindowInsets(0, 0, 0, 0),
         title = {
             Text(
-                text = title,
+                text = stringResource(R.string.rights_settings),
                 style = Typography.titleLarge
             )
         },

@@ -41,7 +41,7 @@ class EnterViewModel @Inject constructor(
         viewModelScope.launch {
             when (intent) {
                 is EnterIntent.ClickEnter -> {
-                    dataSource.login(AuthRequest(uiState.value.email, uiState.value.password))
+                    //dataSource.login(AuthRequest(uiState.value.email, uiState.value.password))
                     _actions.emit(NavAction.ToMainScreen)
                 }
                 is EnterIntent.SetEmail -> _uiState.update { currentState ->

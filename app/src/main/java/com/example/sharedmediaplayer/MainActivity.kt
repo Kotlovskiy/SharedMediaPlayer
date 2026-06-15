@@ -1,6 +1,7 @@
 package com.example.sharedmediaplayer
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -15,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.auth.ui.AuthDestination
 import com.example.auth.ui.AuthNavHost
 import com.example.room.ui.RoomTopBar
@@ -44,13 +47,18 @@ class MainActivity : ComponentActivity() {
                         val currentBackStackEntry = navController.currentBackStackEntryAsState().value
                         val currentScreen = currentBackStackEntry?.destination?.route
 
-                        when (currentScreen) {
+                        when (
+                            currentScreen
+                            ?.substringBefore("/")
+                            ?.substringBefore("?")
+                        ) {
                             RoomDestination::class.qualifiedName -> {
+                                val params = currentBackStackEntry?.toRoute<RoomDestination>()
                                 RoomTopBar(
                                     onBack = {
                                         navController.navigate(route = HelloDestination) {
                                             popUpTo(HelloDestination) {
-                                                inclusive = true
+                                                inclusive = false
                                             }
                                             launchSingleTop = true
                                         }
@@ -58,20 +66,12 @@ class MainActivity : ComponentActivity() {
                                     onSettings = {
                                         navController.navigate(route = SettingsDestination())
                                     },
-                                    title = ""
+                                    title = params?.name ?: ""
                                 )
                             }
                             SettingsDestination::class.qualifiedName -> {
                                 SettingsTopBar(
-                                    onBack = {
-                                        navController.navigate(route = RoomDestination) {
-                                            popUpTo(RoomDestination) {
-                                                inclusive = false
-                                            }
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    title = ""
+                                    onBack = { navController.navigateUp() }
                                 )
                             }
                         }
@@ -117,12 +117,14 @@ class MainActivity : ComponentActivity() {
                                 onSettings = {
                                     navController.navigate(route = SettingsDestination())
                                 },
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                             )
                         }
 
                         composable<SettingsDestination> { backStackEntry ->
                             Settings(
                                 onBack = { navController.safePopBackStack(backStackEntry) },
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                             )
                         }
                     }
