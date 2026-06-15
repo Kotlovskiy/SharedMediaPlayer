@@ -5,6 +5,7 @@ import com.example.core_network.NetworkConstants.APPLICATION_JSON
 import com.example.core_network.NetworkConstants.BASE_URL
 import com.example.core_network.dto.RefreshTokenRequest
 import com.example.core_network.dto.TokenResponse
+import com.example.core_network.dto.toToken
 import com.example.core_network.qualifier.AuthorizedOkHttpClient
 import com.example.storage.TokenPreferences
 import kotlinx.serialization.json.Json
@@ -70,12 +71,7 @@ class TokenAuthenticator @Inject constructor(
             if (response.isSuccessful) {
                 val responseBody = response.body.string()
                 val tokenResponse = json.decodeFromString<TokenResponse>(responseBody)
-                TokenPreferences.Token(
-                    accessToken = tokenResponse.accessToken,
-                    refreshToken = tokenResponse.refreshToken,
-                    accessTokenExpiredAt = tokenResponse.accessTokenExpiredAt,
-                    refreshTokenExpiredAt = tokenResponse.refreshTokenExpiredAt
-                )
+                tokenResponse.toToken()
             } else {
                 null
             }
