@@ -17,22 +17,36 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.auth.R
+import com.example.core_ui.R as coreR
 
 @Composable
 fun Registration(
     toMainScreen: () -> Unit,
     toEnter: () -> Unit,
+    showError: suspend (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RegistrationViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val commonErrorText = stringResource(coreR.string.smt_went_wrong)
+    val internetErrorText = stringResource(coreR.string.check_connection)
+    val serverErrorText = stringResource(coreR.string.server_error)
+    val conflictErrorText = stringResource(R.string.conflict)
+    val invalidDataErrorText = stringResource(R.string.invalid_data)
+    val forbiddenErrorText = stringResource(R.string.access_denied)
 
     LaunchedEffect(Unit) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.actions.collect { action ->
                 when (action) {
-                    NavAction.ToEnter -> toEnter.invoke()
-                    NavAction.ToMainScreen -> toMainScreen.invoke()
+                    AuthEffect.ShowConflictError -> showError(conflictErrorText)
+                    AuthEffect.ShowForbiddenError -> showError(forbiddenErrorText)
+                    AuthEffect.ShowInternetError -> showError(internetErrorText)
+                    AuthEffect.ShowInvalidDataError -> showError(invalidDataErrorText)
+                    AuthEffect.ShowServerError -> showError(serverErrorText)
+                    AuthEffect.ShowUnknownError -> showError(commonErrorText)
+                    AuthEffect.ToEnter -> toEnter.invoke()
+                    AuthEffect.ToMainScreen -> toMainScreen.invoke()
                 }
             }
         }

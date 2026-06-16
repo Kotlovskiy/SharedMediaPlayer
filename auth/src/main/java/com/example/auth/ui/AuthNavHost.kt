@@ -13,7 +13,8 @@ import com.example.auth.ui.registration.RegistrationDestination
 
 @Composable
 fun AuthNavHost(
-    toMainScreen: () -> Unit
+    toMainScreen: () -> Unit,
+    showError: suspend (String) -> Unit,
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -25,7 +26,8 @@ fun AuthNavHost(
             Enter(
                 toMainScreen = toMainScreen,
                 toRegistration = { navController.navigate(route = RegistrationDestination) },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                showError = showError
             )
         }
 
@@ -38,7 +40,8 @@ fun AuthNavHost(
                         launchSingleTop = true
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                showError = showError
             )
         }
     }

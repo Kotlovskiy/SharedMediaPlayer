@@ -7,4 +7,8 @@
     <string name="nickname">Ник</string>
     <string name="enter">Войти</string>
     <string name="register">Зарегистрироваться</string>
+
+    <string name="conflict">Пользователь уже существует</string>
+    <string name="invalid_data">Неправильна почта или пароль</string>
+    <string name="access_denied">Отказано в доступе</string>
 </resources>

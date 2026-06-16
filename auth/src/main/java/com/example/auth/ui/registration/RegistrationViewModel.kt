@@ -2,8 +2,9 @@ package com.example.auth.ui.registration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.auth.data.AuthDataSource
-import com.example.core_network.dto.AuthRequest
+import com.example.auth.data.AuthRepository
+import com.example.auth.domain.Result
+import com.example.common_network_error.NetworkError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,14 +24,20 @@ sealed class RegistrationIntent {
     object ClickToEnter : RegistrationIntent()
 }
 
-sealed class NavAction {
-    object ToEnter : NavAction()
-    object ToMainScreen : NavAction()
+sealed class AuthEffect {
+    object ToEnter : AuthEffect()
+    object ToMainScreen : AuthEffect()
+    object ShowUnknownError: AuthEffect()
+    object ShowForbiddenError: AuthEffect()
+    object ShowConflictError: AuthEffect()
+    object ShowInvalidDataError: AuthEffect()
+    object ShowInternetError: AuthEffect()
+    object ShowServerError: AuthEffect()
 }
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
-    private val dataSource: AuthDataSource
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(RegistrationUiState(
         email = "",
@@ -39,19 +46,24 @@ class RegistrationViewModel @Inject constructor(
     ))
     val uiState: StateFlow<RegistrationUiState> = _uiState
 
-    private val _actions = MutableSharedFlow<NavAction>(replay = 0)
+    private val _actions = MutableSharedFlow<AuthEffect>(replay = 0)
     val actions = _actions.asSharedFlow()
 
     fun emit(intent: RegistrationIntent) {
         viewModelScope.launch {
             when (intent) {
                 is RegistrationIntent.ClickRegister -> {
-                    dataSource.register(
-                        AuthRequest(uiState.value.email, uiState.value.password)
+                    val result = authRepository.register(
+                        nickname = uiState.value.nickname,
+                        email = uiState.value.email,
+                        password = uiState.value.password
                     )
-                    _actions.emit(NavAction.ToMainScreen)
+                    when(result) {
+                        is Result.Error -> sendErrorEffect(result.error)
+                        is Result.Success<*> -> _actions.emit(AuthEffect.ToMainScreen)
+                    }
                 }
-                is RegistrationIntent.ClickToEnter -> _actions.emit(NavAction.ToEnter)
+                is RegistrationIntent.ClickToEnter -> _actions.emit(AuthEffect.ToEnter)
                 is RegistrationIntent.SetEmail -> _uiState.update { currentState ->
                     currentState.copy(email = intent.email)
                 }
@@ -62,6 +74,19 @@ class RegistrationViewModel @Inject constructor(
                     currentState.copy(nickname = intent.nickname)
                 }
             }
+        }
+    }
+
+    private suspend fun sendErrorEffect(error: NetworkError) {
+        when(error) {
+            NetworkError.Conflict -> _actions.emit(AuthEffect.ShowConflictError)
+            NetworkError.Forbidden -> _actions.emit(AuthEffect.ShowForbiddenError)
+            NetworkError.InvalidData -> _actions.emit(AuthEffect.ShowInvalidDataError)
+            NetworkError.NoInternet -> _actions.emit(AuthEffect.ShowInternetError)
+            NetworkError.NotFound -> _actions.emit(AuthEffect.ShowUnknownError)
+            NetworkError.ServerError -> _actions.emit(AuthEffect.ShowServerError)
+            NetworkError.Unauthorized -> _actions.emit(AuthEffect.ShowUnknownError)
+            is NetworkError.Unknown -> _actions.emit(AuthEffect.ShowUnknownError)
         }
     }
 }

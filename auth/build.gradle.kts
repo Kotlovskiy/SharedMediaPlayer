@@ -30,6 +30,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.coreUi)
+    implementation(projects.commonNetworkError)
     implementation(projects.coreNetwork)
     implementation(libs.retrofit)
 

@@ -109,7 +109,8 @@ class MainActivity : ComponentActivity() {
                                         }
                                         launchSingleTop = true
                                     }
-                                }
+                                },
+                                showError = { error -> snackBarHostState.showSnackbar(error) }
                             )
                         }
 

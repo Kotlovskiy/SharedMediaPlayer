@@ -2,8 +2,9 @@ package com.example.auth.ui.enter
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.auth.data.AuthDataSource
-import com.example.core_network.dto.AuthRequest
+import com.example.auth.data.AuthRepository
+import com.example.auth.domain.Result
+import com.example.common_network_error.NetworkError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,27 +23,35 @@ sealed class EnterIntent {
     object ClickToRegistration : EnterIntent()
 }
 
-sealed class NavAction {
-    object ToRegistration : NavAction()
-    object ToMainScreen : NavAction()
+sealed class AuthEffect {
+    object ToRegistration : AuthEffect()
+    object ToMainScreen : AuthEffect()
+    object ShowUnknownError: AuthEffect()
+    object ShowForbiddenError: AuthEffect()
+    object ShowInvalidDataError: AuthEffect()
+    object ShowInternetError: AuthEffect()
+    object ShowServerError: AuthEffect()
 }
 
 @HiltViewModel
 class EnterViewModel @Inject constructor(
-    private val dataSource: AuthDataSource
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EnterUiState(email = "", password = ""))
     val uiState: StateFlow<EnterUiState> = _uiState
 
-    private val _actions = MutableSharedFlow<NavAction>(replay = 0)
+    private val _actions = MutableSharedFlow<AuthEffect>(replay = 0)
     val actions = _actions.asSharedFlow()
 
     fun emit(intent: EnterIntent) {
         viewModelScope.launch {
             when (intent) {
                 is EnterIntent.ClickEnter -> {
-                    //dataSource.login(AuthRequest(uiState.value.email, uiState.value.password))
-                    _actions.emit(NavAction.ToMainScreen)
+                    val result = authRepository.login(uiState.value.email, uiState.value.password)
+                    when(result) {
+                        is Result.Error -> sendErrorEffect(result.error)
+                        is Result.Success<*> -> _actions.emit(AuthEffect.ToMainScreen)
+                    }
                 }
                 is EnterIntent.SetEmail -> _uiState.update { currentState ->
                     currentState.copy(email = intent.email)
@@ -50,8 +59,21 @@ class EnterViewModel @Inject constructor(
                 is EnterIntent.SetPassword -> _uiState.update { currentState ->
                     currentState.copy(password = intent.password)
                 }
-                is EnterIntent.ClickToRegistration -> _actions.emit(NavAction.ToRegistration)
+                is EnterIntent.ClickToRegistration -> _actions.emit(AuthEffect.ToRegistration)
             }
+        }
+    }
+
+    private suspend fun sendErrorEffect(error: NetworkError) {
+        when(error) {
+            NetworkError.Conflict -> _actions.emit(AuthEffect.ShowUnknownError)
+            NetworkError.Forbidden -> _actions.emit(AuthEffect.ShowForbiddenError)
+            NetworkError.InvalidData -> _actions.emit(AuthEffect.ShowInvalidDataError)
+            NetworkError.NoInternet -> _actions.emit(AuthEffect.ShowInternetError)
+            NetworkError.NotFound -> _actions.emit(AuthEffect.ShowUnknownError)
+            NetworkError.ServerError -> _actions.emit(AuthEffect.ShowServerError)
+            NetworkError.Unauthorized -> _actions.emit(AuthEffect.ShowUnknownError)
+            is NetworkError.Unknown -> _actions.emit(AuthEffect.ShowUnknownError)
         }
     }
 }
