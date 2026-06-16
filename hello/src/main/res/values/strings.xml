@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="create_room">Создать комнату</string>
+    <string name="input_room_name">Введите название комнаты</string>
+    <string name="room_name">Название комнаты</string>
+
     <string name="join_room">Присоединиться к комнате</string>
+    <string name="input_join_key">Введите код приглашения</string>
+    <string name="join_key">Код приглашения</string>
+
+    <string name="confirm">Подтвердить</string>
+
+    <string name="not_found">Комната не найдена</string>
+    <string name="access_denied">Отказано</string>
+    <string name="conflict">Название уже занято</string>
+    <string name="invalid_data">Некоректнае данные</string>
 </resources>

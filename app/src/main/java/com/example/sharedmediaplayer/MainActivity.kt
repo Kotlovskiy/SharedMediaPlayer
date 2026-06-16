@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.ui.AuthDestination
 import com.example.auth.ui.AuthNavHost
@@ -28,8 +29,12 @@ import com.example.room.ui.RoomScreen
 import com.example.settings.ui.Settings
 import com.example.settings.ui.SettingsDestination
 import com.example.core_ui.theme.SharedMediaPlayerTheme
-import com.example.hello.HelloDestination
-import com.example.hello.HelloScreen
+import com.example.hello.ui.HelloDestination
+import com.example.hello.ui.HelloScreen
+import com.example.hello.ui.dialog.create.CreateDialog
+import com.example.hello.ui.dialog.create.CreateRoomDialog
+import com.example.hello.ui.dialog.join.JoinDialog
+import com.example.hello.ui.dialog.join.JoinRoomDialog
 import com.example.room.ui.RoomTopBarParams
 import com.example.settings.ui.SettingsTopBarParams
 import dagger.hilt.android.AndroidEntryPoint
@@ -141,6 +146,42 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                             )
                             currentTopBarParams = currentTopBarParams + SettingsTopBarParams
+                        }
+
+                        dialog<CreateDialog> {
+                            CreateRoomDialog(
+                                onConfirm = { id, name ->
+                                    navController.navigate(
+                                        route = RoomDestination(
+                                            roomId = id,
+                                            roomName = name
+                                        )
+                                    ) {
+                                        popUpTo(route = HelloDestination) { inclusive = false }
+                                    }
+                                },
+                                showError = { error ->
+                                    snackBarHostState.showSnackbar(error)
+                                }
+                            )
+                        }
+
+                        dialog<JoinDialog> {
+                            JoinRoomDialog(
+                                onConfirm = { id, name ->
+                                    navController.navigate(
+                                        route = RoomDestination(
+                                            roomId = id,
+                                            roomName = name
+                                        )
+                                    ) {
+                                        popUpTo(route = HelloDestination) { inclusive = false }
+                                    }
+                                },
+                                showError = { error ->
+                                    snackBarHostState.showSnackbar(error)
+                                }
+                            )
                         }
                     }
                 }
