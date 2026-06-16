@@ -122,12 +122,11 @@ class MainActivity : ComponentActivity() {
                         composable<HelloDestination> {
                             HelloScreen(
                                 onCreateRoom = {
-                                    navController.navigate(route = RoomDestination(
-                                        "",
-                                        "Test room"
-                                    ))
+                                    navController.navigate(route = CreateDialog)
                                 },
-                                onJoinRoom = {}
+                                onJoinRoom = {
+                                    navController.navigate(route = JoinDialog)
+                                }
                             )
                         }
 

@@ -69,7 +69,7 @@ fun CreateRoomDialog(
             onValueChange = { newValue -> viewModel.setName(newValue) },
             placeholder = {
                 Text(
-                    text = stringResource(com.example.hello.R.string.join_key)
+                    text = stringResource(com.example.hello.R.string.room_name)
                 )
             }
         )
