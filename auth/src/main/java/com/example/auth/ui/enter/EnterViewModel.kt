@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.auth.data.AuthRepository
 import com.example.auth.domain.Result
 import com.example.common_network_error.NetworkError
+import com.example.core_network.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,8 @@ sealed class AuthEffect {
 
 @HiltViewModel
 class EnterViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    val authManager: AuthManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EnterUiState(email = "", password = ""))
     val uiState: StateFlow<EnterUiState> = _uiState
@@ -75,5 +77,10 @@ class EnterViewModel @Inject constructor(
             NetworkError.Unauthorized -> _actions.emit(AuthEffect.ShowUnknownError)
             is NetworkError.Unknown -> _actions.emit(AuthEffect.ShowUnknownError)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        authManager.dispose()
     }
 }

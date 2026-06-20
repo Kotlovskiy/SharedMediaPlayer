@@ -28,6 +28,7 @@ android {
 
 dependencies {
     implementation(projects.storage)
+    implementation(libs.appauth)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.converter)
     implementation(libs.hilt.android)

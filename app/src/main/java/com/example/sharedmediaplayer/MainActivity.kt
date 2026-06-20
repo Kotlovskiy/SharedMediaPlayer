@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,144 +46,149 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SharedMediaPlayerTheme {
-                val navController = rememberNavController()
-                var currentTopBarParams by remember {
-                    mutableStateOf<List<AppTopBarParams>>(listOf())
-                }
-                val snackBarHostState = remember { SnackbarHostState() }
+            MainContent()
+        }
+    }
+}
 
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    topBar = {
-                        if(currentTopBarParams.isNotEmpty()) {
-                            when(currentTopBarParams.last()) {
-                                is RoomTopBarParams -> {
-                                    RoomTopBar(
-                                        onBack = {
-                                            (currentTopBarParams.last() as RoomTopBarParams)
-                                                .onExit.invoke()
+@Composable
+fun MainContent() {
+    SharedMediaPlayerTheme {
+        val navController = rememberNavController()
+        var currentTopBarParams by remember {
+            mutableStateOf<List<AppTopBarParams>>(listOf())
+        }
+        val snackBarHostState = remember { SnackbarHostState() }
 
-                                            currentTopBarParams = currentTopBarParams.dropLast(1)
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize(),
+            topBar = {
+                if(currentTopBarParams.isNotEmpty()) {
+                    when(currentTopBarParams.last()) {
+                        is RoomTopBarParams -> {
+                            RoomTopBar(
+                                onBack = {
+                                    (currentTopBarParams.last() as RoomTopBarParams)
+                                        .onExit.invoke()
 
-                                            navController.navigate(route = HelloDestination) {
-                                                popUpTo(HelloDestination) {
-                                                    inclusive = false
-                                                }
-                                                launchSingleTop = true
-                                            }
-                                        },
-                                        onSettings = {
-                                            navController.navigate(route = SettingsDestination())
-                                        },
-                                        title =
-                                            (currentTopBarParams.last() as RoomTopBarParams)
-                                                .roomName,
-                                        showSettingsButton =
-                                            (currentTopBarParams.last() as RoomTopBarParams)
-                                                .showSettingsButton
-                                    )
-                                }
-                                is SettingsTopBarParams -> {
-                                    SettingsTopBar(
-                                        onBack = {
-                                            navController.navigateUp()
-                                            currentTopBarParams = currentTopBarParams.dropLast(1)
-                                        }
-                                    )
-                                }
-                                else -> {}
-                            }
-                        }
-                    },
-                    snackbarHost = {
-                        SnackbarHost(hostState = snackBarHostState)
-                    }
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = AuthDestination,
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        composable<AuthDestination> {
-                            AuthNavHost(
-                                toMainScreen = {
+                                    currentTopBarParams = currentTopBarParams.dropLast(1)
+
                                     navController.navigate(route = HelloDestination) {
-                                        popUpTo(route = AuthDestination) {
-                                            inclusive = true
+                                        popUpTo(HelloDestination) {
+                                            inclusive = false
                                         }
                                         launchSingleTop = true
                                     }
                                 },
-                                showError = { error -> snackBarHostState.showSnackbar(error) }
+                                onSettings = {
+                                    navController.navigate(route = SettingsDestination())
+                                },
+                                title =
+                                    (currentTopBarParams.last() as RoomTopBarParams)
+                                        .roomName,
+                                showSettingsButton =
+                                    (currentTopBarParams.last() as RoomTopBarParams)
+                                        .showSettingsButton
                             )
                         }
-
-                        composable<HelloDestination> {
-                            HelloScreen(
-                                onCreateRoom = {
-                                    navController.navigate(route = CreateDialog)
-                                },
-                                onJoinRoom = {
-                                    navController.navigate(route = JoinDialog)
+                        is SettingsTopBarParams -> {
+                            SettingsTopBar(
+                                onBack = {
+                                    navController.navigateUp()
+                                    currentTopBarParams = currentTopBarParams.dropLast(1)
                                 }
                             )
                         }
-
-                        composable<RoomDestination> {
-                            RoomScreen(
-                                setTopBarParams = { params ->
-                                    currentTopBarParams = currentTopBarParams + params
-                                },
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                                showError = { error -> snackBarHostState.showSnackbar(error) }
-                            )
-                        }
-
-                        composable<SettingsDestination> {
-                            Settings(
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
-                            )
-                            currentTopBarParams = currentTopBarParams + SettingsTopBarParams
-                        }
-
-                        dialog<CreateDialog> {
-                            CreateRoomDialog(
-                                onConfirm = { id, name ->
-                                    navController.navigate(
-                                        route = RoomDestination(
-                                            roomId = id,
-                                            roomName = name
-                                        )
-                                    ) {
-                                        popUpTo(route = HelloDestination) { inclusive = false }
-                                    }
-                                },
-                                showError = { error ->
-                                    snackBarHostState.showSnackbar(error)
-                                }
-                            )
-                        }
-
-                        dialog<JoinDialog> {
-                            JoinRoomDialog(
-                                onConfirm = { id, name ->
-                                    navController.navigate(
-                                        route = RoomDestination(
-                                            roomId = id,
-                                            roomName = name
-                                        )
-                                    ) {
-                                        popUpTo(route = HelloDestination) { inclusive = false }
-                                    }
-                                },
-                                showError = { error ->
-                                    snackBarHostState.showSnackbar(error)
-                                }
-                            )
-                        }
+                        else -> {}
                     }
+                }
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackBarHostState)
+            }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = AuthDestination,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable<AuthDestination> {
+                    AuthNavHost(
+                        toMainScreen = {
+                            navController.navigate(route = HelloDestination) {
+                                popUpTo(route = AuthDestination) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        },
+                        showError = { error -> snackBarHostState.showSnackbar(error) }
+                    )
+                }
+
+                composable<HelloDestination> {
+                    HelloScreen(
+                        onCreateRoom = {
+                            navController.navigate(route = CreateDialog)
+                        },
+                        onJoinRoom = {
+                            navController.navigate(route = JoinDialog)
+                        }
+                    )
+                }
+
+                composable<RoomDestination> {
+                    RoomScreen(
+                        setTopBarParams = { params ->
+                            currentTopBarParams = currentTopBarParams + params
+                        },
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                        showError = { error -> snackBarHostState.showSnackbar(error) }
+                    )
+                }
+
+                composable<SettingsDestination> {
+                    Settings(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+                    )
+                    currentTopBarParams = currentTopBarParams + SettingsTopBarParams
+                }
+
+                dialog<CreateDialog> {
+                    CreateRoomDialog(
+                        onConfirm = { id, name ->
+                            navController.navigate(
+                                route = RoomDestination(
+                                    roomId = id,
+                                    roomName = name
+                                )
+                            ) {
+                                popUpTo(route = HelloDestination) { inclusive = false }
+                            }
+                        },
+                        showError = { error ->
+                            snackBarHostState.showSnackbar(error)
+                        }
+                    )
+                }
+
+                dialog<JoinDialog> {
+                    JoinRoomDialog(
+                        onConfirm = { id, name ->
+                            navController.navigate(
+                                route = RoomDestination(
+                                    roomId = id,
+                                    roomName = name
+                                )
+                            ) {
+                                popUpTo(route = HelloDestination) { inclusive = false }
+                            }
+                        },
+                        showError = { error ->
+                            snackBarHostState.showSnackbar(error)
+                        }
+                    )
                 }
             }
         }

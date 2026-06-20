@@ -18,15 +18,6 @@ object StorageModule {
 
     @Provides
     @Singleton
-    fun provideTokenPreferences(
-        @ApplicationContext context: Context,
-        cryptoManager: CryptoManager
-    ): TokenPreferences {
-        return TokenPreferences(context = context, cryptoManager = cryptoManager)
-    }
-
-    @Provides
-    @Singleton
     fun provideAppDataStore(
         @ApplicationContext context: Context
     ): AppDataStore {

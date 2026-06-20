@@ -1,14 +1,14 @@
 package com.example.core_network.interceptor
 
+import com.example.core_network.AuthManager
 import com.example.core_network.NetworkConstants.AUTHORIZATION_HEADER
 import com.example.core_network.NetworkConstants.BEARER
-import com.example.storage.TokenPreferences
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
 
 class TokenInterceptor @Inject constructor(
-    private val tokenPreferences: TokenPreferences
+    private val authManager: AuthManager
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
@@ -16,7 +16,7 @@ class TokenInterceptor @Inject constructor(
         val request = originalRequest.newBuilder()
             .header(
                 AUTHORIZATION_HEADER,
-                "$BEARER ${tokenPreferences.getAccessToken()}"
+                "$BEARER ${authManager.getAccessToken()}"
             )
             .build()
 

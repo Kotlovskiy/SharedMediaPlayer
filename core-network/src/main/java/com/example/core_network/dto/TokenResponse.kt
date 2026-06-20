@@ -1,6 +1,5 @@
 package com.example.core_network.dto
 
-import com.example.storage.TokenPreferences.Token
 import kotlinx.serialization.Serializable
 import java.time.OffsetDateTime
 

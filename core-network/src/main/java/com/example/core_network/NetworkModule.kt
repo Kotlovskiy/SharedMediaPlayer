@@ -1,8 +1,8 @@
 package com.example.core_network
 
+import android.content.Context
 import com.example.core_network.NetworkConstants.APPLICATION_JSON
 import com.example.core_network.NetworkConstants.BASE_URL
-import com.example.core_network.interceptor.SaveTokenInterceptor
 import com.example.core_network.interceptor.TokenAuthenticator
 import com.example.core_network.interceptor.TokenInterceptor
 import com.example.core_network.qualifier.AuthorizedOkHttpClient
@@ -14,10 +14,11 @@ import com.example.core_network.service.LogoutService
 import com.example.core_network.service.QueueService
 import com.example.core_network.service.RefreshService
 import com.example.core_network.service.RoomService
-import com.example.storage.TokenPreferences
+import com.example.storage.CryptoManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -32,47 +33,26 @@ import javax.inject.Singleton
 object NetworkModule {
 
     @Provides
+    @Singleton
+    fun provideAuthManager(
+        @ApplicationContext context: Context,
+        cryptoManager: CryptoManager
+    ): AuthManager {
+        return AuthManager(context, cryptoManager)
+    }
+
+    @Provides
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTokenInterceptor(tokenPreferences: TokenPreferences): TokenInterceptor {
-        return TokenInterceptor(tokenPreferences)
-    }
-
-    @Provides
-    fun provideSaveTokenInterceptor(
-        tokenPreferences: TokenPreferences,
-        json: Json
-    ): SaveTokenInterceptor {
-        return SaveTokenInterceptor(tokenPreferences, json)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTokenAuthenticator(
-        tokenPreferences: TokenPreferences,
-        json: Json,
-        @UnauthorizedOkHttpClient okHttpClient: OkHttpClient
-    ): TokenAuthenticator {
-        return TokenAuthenticator(
-            tokenPreferences = tokenPreferences,
-            json = json,
-            client = okHttpClient
-        )
     }
 
     @UnauthorizedOkHttpClient
     @Provides
     @Singleton
     fun provideUnauthorizedOkHttpClient(
-        saveTokenInterceptor: SaveTokenInterceptor,
         loggingInterceptor: HttpLoggingInterceptor,
     ): OkHttpClient =
         OkHttpClient.Builder()
-            .addInterceptor(saveTokenInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
 

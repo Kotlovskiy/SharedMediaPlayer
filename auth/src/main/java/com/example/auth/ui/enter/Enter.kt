@@ -1,5 +1,8 @@
 package com.example.auth.ui.enter
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
@@ -17,6 +20,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.auth.R
+import kotlinx.coroutines.runBlocking
 import com.example.core_ui.R as coreR
 
 @Composable
@@ -48,6 +52,29 @@ fun Enter(
                 }
             }
         }
+    }
+
+    val authLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            viewModel.authManager.authorizationIntentHandler(
+                data!!,
+                onSuccess = {
+                    toMainScreen()
+                },
+                onAuthError = {
+                    runBlocking { showError("error: ${it?.error}; message: ${it?.message}") }
+                }
+            )
+        }
+    }
+
+    try {
+        //viewModel.authManager.startAuthorization(authLauncher)
+    } catch (e: Exception) {
+        runBlocking { showError(e.toString()) }
     }
 
     Column(

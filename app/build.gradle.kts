@@ -1,3 +1,5 @@
+import com.android.ide.common.symbols.getPackageNameFromManifest
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -22,6 +24,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.music.app"
     }
 
     buildTypes {
@@ -54,6 +57,8 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.navigation.hilt)
+
+    implementation(libs.appauth)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.androidx.compose.bom))
