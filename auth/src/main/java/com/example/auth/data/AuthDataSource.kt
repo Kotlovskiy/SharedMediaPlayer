@@ -4,7 +4,7 @@ import com.example.core_network.ApiResult
 import com.example.core_network.dto.AuthRequest
 import com.example.core_network.dto.RegistrationRequest
 import com.example.core_network.service.AuthService
-import com.example.core_network.toApiResult
+import com.example.core_network.toUnitApiResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -23,7 +23,7 @@ class AuthDataSource @Inject constructor(
                     email = email,
                     password = password
                 )
-            ).toApiResult()
+            ).toUnitApiResult()
         } catch (e: IOException) {
             ApiResult.NetworkException(e)
         }
@@ -41,7 +41,7 @@ class AuthDataSource @Inject constructor(
                     email = email,
                     password = password
                 )
-            ).toApiResult()
+            ).toUnitApiResult()
         } catch (e: IOException) {
             ApiResult.NetworkException(e)
         }

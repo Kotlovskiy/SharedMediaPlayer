@@ -12,9 +12,7 @@ import okhttp3.Route
 import javax.inject.Inject
 
 class TokenAuthenticator @Inject constructor(
-    private val authManager: AuthManager,
-    private val json: Json,
-    @param:AuthorizedOkHttpClient private val client: OkHttpClient
+    private val authManager: AuthManager
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
         val newToken = getFreshToken(response.request)
