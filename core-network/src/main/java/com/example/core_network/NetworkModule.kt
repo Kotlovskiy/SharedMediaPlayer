@@ -5,10 +5,6 @@ import com.example.core_network.NetworkConstants.APPLICATION_JSON
 import com.example.core_network.NetworkConstants.BASE_URL
 import com.example.core_network.interceptor.TokenAuthenticator
 import com.example.core_network.interceptor.TokenInterceptor
-import com.example.core_network.qualifier.AuthorizedOkHttpClient
-import com.example.core_network.qualifier.AuthorizedRetrofit
-import com.example.core_network.qualifier.UnauthorizedOkHttpClient
-import com.example.core_network.qualifier.UnauthorizedRetrofit
 import com.example.core_network.service.AuthService
 import com.example.core_network.service.LogoutService
 import com.example.core_network.service.QueueService
@@ -46,17 +42,6 @@ object NetworkModule {
         return HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)
     }
 
-    @UnauthorizedOkHttpClient
-    @Provides
-    @Singleton
-    fun provideUnauthorizedOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor,
-    ): OkHttpClient =
-        OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .build()
-
-    @AuthorizedOkHttpClient
     @Provides
     @Singleton
     fun provideAuthorizedOkHttpClient(
@@ -77,24 +62,10 @@ object NetworkModule {
             ignoreUnknownKeys = true
         }
 
-    @AuthorizedRetrofit
     @Provides
     @Singleton
     fun provideAuthorizedRetrofit(
-        @AuthorizedOkHttpClient client: OkHttpClient,
-        json: Json
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(json.asConverterFactory(APPLICATION_JSON.toMediaType()))
-            .build()
-
-    @UnauthorizedRetrofit
-    @Provides
-    @Singleton
-    fun provideUnauthorizedRetrofit(
-        @UnauthorizedOkHttpClient client: OkHttpClient,
+        client: OkHttpClient,
         json: Json
     ): Retrofit =
         Retrofit.Builder()
@@ -104,27 +75,27 @@ object NetworkModule {
             .build()
 
     @Provides
-    fun provideAuthService(@UnauthorizedRetrofit retrofit: Retrofit): AuthService {
+    fun provideAuthService(retrofit: Retrofit): AuthService {
         return retrofit.create(AuthService::class.java)
     }
 
     @Provides
-    fun provideLogoutService(@AuthorizedRetrofit retrofit: Retrofit): LogoutService {
+    fun provideLogoutService(retrofit: Retrofit): LogoutService {
         return retrofit.create(LogoutService::class.java)
     }
 
     @Provides
-    fun provideRefreshService(@AuthorizedRetrofit retrofit: Retrofit): RefreshService {
+    fun provideRefreshService(retrofit: Retrofit): RefreshService {
         return retrofit.create(RefreshService::class.java)
     }
 
     @Provides
-    fun provideRoomService(@AuthorizedRetrofit retrofit: Retrofit): RoomService {
+    fun provideRoomService(retrofit: Retrofit): RoomService {
         return retrofit.create(RoomService::class.java)
     }
 
     @Provides
-    fun provideQueueService(@AuthorizedRetrofit retrofit: Retrofit): QueueService {
+    fun provideQueueService(retrofit: Retrofit): QueueService {
         return retrofit.create(QueueService::class.java)
     }
 }

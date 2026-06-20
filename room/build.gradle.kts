@@ -30,6 +30,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.media3.ui)
     implementation(projects.coreUi)
     implementation(projects.coreNetwork)
     implementation(projects.commonNetworkError)
@@ -39,6 +40,12 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.navigation.hilt)
+
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui.compose)
+    implementation(libs.androidx.media3.ui.compose.material3)
+    implementation(libs.androidx.media3.datasource)
+    implementation(libs.androidx.media3.session)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.androidx.compose.bom))

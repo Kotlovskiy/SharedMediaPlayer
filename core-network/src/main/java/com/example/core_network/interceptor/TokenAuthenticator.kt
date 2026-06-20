@@ -2,10 +2,7 @@ package com.example.core_network.interceptor
 
 import com.example.core_network.AuthManager
 import com.example.core_network.NetworkConstants
-import com.example.core_network.qualifier.AuthorizedOkHttpClient
-import kotlinx.serialization.json.Json
 import okhttp3.Authenticator
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route

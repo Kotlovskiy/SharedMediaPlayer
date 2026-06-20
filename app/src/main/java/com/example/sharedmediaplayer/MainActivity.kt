@@ -122,8 +122,7 @@ fun MainContent() {
                                 }
                                 launchSingleTop = true
                             }
-                        },
-                        showError = { error -> snackBarHostState.showSnackbar(error) }
+                        }
                     )
                 }
 

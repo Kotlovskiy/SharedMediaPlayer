@@ -8,13 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.ui.enter.Enter
 import com.example.auth.ui.enter.EnterDestination
-import com.example.auth.ui.registration.Registration
-import com.example.auth.ui.registration.RegistrationDestination
 
 @Composable
 fun AuthNavHost(
-    toMainScreen: () -> Unit,
-    showError: suspend (String) -> Unit,
+    toMainScreen: () -> Unit
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -25,23 +22,7 @@ fun AuthNavHost(
         composable<EnterDestination> {
             Enter(
                 toMainScreen = toMainScreen,
-                toRegistration = { navController.navigate(route = RegistrationDestination) },
                 modifier = Modifier.fillMaxSize(),
-                showError = showError
-            )
-        }
-
-        composable<RegistrationDestination> {
-            Registration(
-                toMainScreen = toMainScreen,
-                toEnter = {
-                    navController.navigate(route = EnterDestination) {
-                        popUpTo(route = EnterDestination)
-                        launchSingleTop = true
-                    }
-                },
-                modifier = Modifier.fillMaxSize(),
-                showError = showError
             )
         }
     }
