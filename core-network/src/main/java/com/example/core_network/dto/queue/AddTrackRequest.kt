@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddTrackRequest(
-    val url: String
+    val roomId: String,
+    val youtubeUrl: String
 )

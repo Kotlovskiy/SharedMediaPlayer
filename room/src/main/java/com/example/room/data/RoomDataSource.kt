@@ -1,9 +1,7 @@
 package com.example.room.data
 
-import com.example.common_network_error.NetworkError
 import com.example.core_network.ApiResult
 import com.example.core_network.StompClient
-import com.example.core_network.dto.queue.AddTrackRequest
 import com.example.core_network.dto.queue.MoveTrackRequest
 import com.example.core_network.dto.queue.TrackResponse
 import com.example.core_network.service.QueueService
@@ -12,7 +10,6 @@ import com.example.core_network.toApiResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -37,7 +34,10 @@ class RoomDataSource @Inject constructor(
         url: String
     ) = withContext(Dispatchers.IO) {
         try {
-            queueApi.addSong(roomId = roomId, request = AddTrackRequest(url)).toApiResult()
+            queueApi.addSong(
+                roomId = roomId,
+                youtubeUrl = url
+            ).toApiResult()
         } catch (e: IOException) {
             ApiResult.NetworkException(e)
         }

@@ -1,6 +1,5 @@
 package com.example.core_network.service
 
-import com.example.core_network.dto.queue.AddTrackRequest
 import com.example.core_network.dto.queue.DeleteResponse
 import com.example.core_network.dto.queue.MoveTrackRequest
 import com.example.core_network.dto.queue.QueueResponse
@@ -12,12 +11,13 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface QueueService {
-    @POST("api/queue/{roomId}/tracks")
+    @POST("api/media/parse")
     suspend fun addSong(
-        @Path("roomId") roomId: String,
-        @Body request: AddTrackRequest
+        @Query("roomId") roomId: String,
+        @Query("youtubeUrl") youtubeUrl: String
     ): Response<TrackResponse>
 
     @GET("api/queue/{roomId}")

@@ -298,7 +298,7 @@ private fun ParticipantList(
 
 @Composable
 private fun SongItem(
-    url: String,
+    url: String?,
     title: String,
     artist: String,
     onDelete: () -> Unit,
