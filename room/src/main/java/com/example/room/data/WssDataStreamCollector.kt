@@ -4,8 +4,9 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 import java.util.concurrent.ConcurrentSkipListSet
+import javax.inject.Inject
 
-class WssDataStreamCollector : WebSocketListener() {
+class WssDataStreamCollector @Inject constructor() : WebSocketListener() {
     private val wssData = ConcurrentSkipListSet<ByteString>()
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {

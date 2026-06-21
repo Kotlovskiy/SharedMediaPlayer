@@ -1,13 +1,18 @@
 package com.example.room.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -20,11 +25,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.compose.material3.buttons.NextButton
+import androidx.media3.ui.compose.material3.buttons.PlayPauseButton
+import androidx.media3.ui.compose.material3.indicator.ProgressSlider
 import coil3.compose.AsyncImage
 import com.example.core_ui.icons.add_circle
 import com.example.core_ui.icons.arrow_back
@@ -41,6 +53,8 @@ import com.example.room.domain.Song
 fun RoomScreen(
     setTopBarParams: (RoomTopBarParams) -> Unit,
     showError: suspend (String) -> Unit,
+    onAddSong: (String) -> Unit,
+    onAddParticipant: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel()
 ) {
@@ -51,6 +65,7 @@ fun RoomScreen(
     val forbiddenErrorText = stringResource(R.string.access_denied)
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val musicController by viewModel.controller.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
 
     setTopBarParams(
@@ -72,26 +87,43 @@ fun RoomScreen(
                     RoomEffect.UnauthorizedError -> {/*onLogoutAction()*/}
                     RoomEffect.ShowForbiddenError -> showError(forbiddenErrorText)
                     RoomEffect.ShowNotFoundError -> showError(notFoundErrorText)
+                    is RoomEffect.AddSongDialogOpen -> onAddSong(effect.roomId)
+                    is RoomEffect.AddParticipantDialogOpen -> onAddParticipant(effect.inviteCode)
                 }
             }
         }
     }
 
-    when (uiState) {
-        is RoomUiState.Error -> {}
-        is RoomUiState.MusicTab -> MusicTab(
-            songs = (uiState as RoomUiState.MusicTab).list,
-            onSwitchToParticipants = { viewModel.emit(Intent.OnParticipantsSwitch()) },
-            onAddSong = { viewModel.emit(Intent.OnAddSong()) },
-            onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) },
-            modifier = modifier
-        )
-        is RoomUiState.ParticipantsTab -> ParticipantsTab(
-            participants = (uiState as RoomUiState.ParticipantsTab).list,
-            onSwitchToMusic = { viewModel.emit(Intent.OnMusicsSwitch()) },
-            onParticipantSettings = { viewModel.emit(Intent.OnParticipantSettings(it)) },
-            onAddParticipant = { viewModel.emit(Intent.OnAddParticipant()) },
-            modifier = modifier
+    Column(modifier = modifier) {
+        when (uiState) {
+            is RoomUiState.Error -> {}
+            is RoomUiState.MusicTab -> MusicTab(
+                songs = (uiState as RoomUiState.MusicTab).list,
+                onSwitchToParticipants = { viewModel.emit(Intent.OnParticipantsSwitch()) },
+                onAddSong = { viewModel.emit(Intent.OnAddSong()) },
+                onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) },
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            )
+            is RoomUiState.ParticipantsTab -> ParticipantsTab(
+                participants = (uiState as RoomUiState.ParticipantsTab).list,
+                onSwitchToMusic = { viewModel.emit(Intent.OnMusicsSwitch()) },
+                onParticipantSettings = { viewModel.emit(Intent.OnParticipantSettings(it)) },
+                onAddParticipant = { viewModel.emit(Intent.OnAddParticipant()) },
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            )
+        }
+
+        PlayerControls(
+            player = musicController,
+            modifier = Modifier.fillMaxWidth(),
+            onPlayPauseClick = { toPlay ->
+                if (toPlay) {
+                    viewModel.emit(Intent.OnPlay)
+                } else {
+                    viewModel.emit(Intent.OnPause)
+                }
+            },
+            onNextClick = { viewModel.emit(Intent.OnNext) }
         )
     }
 }
@@ -310,6 +342,72 @@ private fun ParticipantItem(
             Icon(
                 imageVector = more_vert,
                 contentDescription = ""
+            )
+        }
+    }
+}
+
+@androidx.annotation.OptIn(UnstableApi::class)
+@Composable
+fun PlayerControls(
+    player: Player?,
+    onPlayPauseClick: (Boolean) -> Unit,
+    onNextClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (player == null) {
+        return
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
+            .padding(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = player.currentMediaItem?.mediaMetadata?.title?.toString() ?: "Нет трека",
+                style = Typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = player.currentMediaItem?.mediaMetadata?.artist?.toString() ?: "",
+                style = Typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        ProgressSlider(
+            player = player,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PlayPauseButton(
+                player = player,
+                onClick = {
+                    onPlayPauseClick(this.showPlay)
+                }
+            )
+            NextButton(
+                player = player,
+                onClick = {
+                    onNextClick()
+                }
             )
         }
     }

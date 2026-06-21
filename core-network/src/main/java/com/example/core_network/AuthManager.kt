@@ -314,7 +314,7 @@ class AuthManager (
         private const val PREFERENCES_NAME = "auth"
         private const val AUTH_STATE = "auth_state"
         private const val ISSUER_URI =
-            "https://keycloak-production-8336.up.railway.app/realms/music-realm"
+            "https://ggctk3-104-128-139-225.ru.tuna.am/realms/music-realm"
 
         private const val BASE_SCOPE = "openid profile offline_access"
 

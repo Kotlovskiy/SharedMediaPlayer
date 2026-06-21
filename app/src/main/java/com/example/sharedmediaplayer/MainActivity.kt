@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.auth.ui.AuthDestination
 import com.example.auth.ui.AuthNavHost
 import com.example.core_ui.AppTopBarParams
@@ -37,6 +38,10 @@ import com.example.hello.ui.dialog.create.CreateRoomDialog
 import com.example.hello.ui.dialog.join.JoinDialog
 import com.example.hello.ui.dialog.join.JoinRoomDialog
 import com.example.room.ui.RoomTopBarParams
+import com.example.room.ui.dialog.AddParticipantDialog
+import com.example.room.ui.dialog.AddParticipantDialogDestination
+import com.example.room.ui.dialog.AddSongDialog
+import com.example.room.ui.dialog.AddSongDialogDestination
 import com.example.settings.ui.SettingsTopBarParams
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -143,7 +148,13 @@ fun MainContent() {
                             currentTopBarParams = currentTopBarParams + params
                         },
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                        showError = { error -> snackBarHostState.showSnackbar(error) }
+                        showError = { error -> snackBarHostState.showSnackbar(error) },
+                        onAddSong = { roomId ->
+                            navController.navigate(route = AddSongDialogDestination(roomId))
+                        },
+                        onAddParticipant = { inviteCode ->
+                            navController.navigate(route = AddParticipantDialogDestination(inviteCode))
+                        }
                     )
                 }
 
@@ -184,6 +195,20 @@ fun MainContent() {
                                 popUpTo(route = HelloDestination) { inclusive = false }
                             }
                         },
+                        showError = { error ->
+                            snackBarHostState.showSnackbar(error)
+                        }
+                    )
+                }
+
+                dialog<AddParticipantDialogDestination> { backStackEntry ->
+                    val route = backStackEntry.toRoute<AddParticipantDialogDestination>()
+                    AddParticipantDialog(inviteCode = route.inviteCode)
+                }
+
+                dialog<AddSongDialogDestination> {
+                    AddSongDialog(
+                        onConfirm = { navController.navigateUp() },
                         showError = { error ->
                             snackBarHostState.showSnackbar(error)
                         }

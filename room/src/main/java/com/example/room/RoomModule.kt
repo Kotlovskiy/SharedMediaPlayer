@@ -28,7 +28,7 @@ object RoomModule {
     fun provideDataSourceFactory(
         okHttpClient: OkHttpClient,
         dataCollector: WssDataStreamCollector
-    ): WssStreamDataSource.Factory {
+    ): DataSource.Factory {
         return WssStreamDataSource.Factory(okHttpClient, dataCollector)
     }
 

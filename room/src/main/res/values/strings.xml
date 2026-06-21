@@ -9,4 +9,12 @@
 
     <string name="not_found">Комната не найдена</string>
     <string name="access_denied">Недостаточно прав</string>
+
+    <string name="add_song_not_found_error">Трек не найден</string>
+    <string name="add_song_invalid_data_error">Невалидная ссылка</string>
+    <string name="add_song_access_denied_error">Недостаточно прав</string>
+
+    <string name="add_song_placeholder">Https://</string>
+    <string name="add_song_title">Введите ссылку на трек</string>
+    <string name="confirm">Подтвердить</string>
 </resources>
