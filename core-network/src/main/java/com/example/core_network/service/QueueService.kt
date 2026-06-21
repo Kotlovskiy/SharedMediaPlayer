@@ -15,36 +15,36 @@ import retrofit2.http.Path
 
 interface QueueService {
     @POST("api/queue/{roomId}/tracks")
-    fun addSong(
+    suspend fun addSong(
         @Path("roomId") roomId: String,
         @Body request: AddTrackRequest
     ): Response<TrackResponse>
 
     @GET("api/queue/{roomId}/tracks")
-    fun getQueue(
+    suspend fun getQueue(
         @Path("roomId") roomId: String
     ): Response<QueueResponse>
 
     @GET("api/queue/{roomId}/tracks/current")
-    fun getSong(
+    suspend fun getSong(
         @Path("roomId") roomId: String
     ): Response<TrackResponse>
 
     @PUT("api/queue/{roomId}/tracks/{trackId}/move")
-    fun moveSong(
+    suspend fun moveSong(
         @Path("roomId") roomId: String,
         @Path("trackId") trackId: String,
         @Body moveTrackRequest: MoveTrackRequest
     ): Response<TrackResponse>
 
     @DELETE("api/queue/{roomId}/tracks/{trackId}")
-    fun deleteSong(
+    suspend fun deleteSong(
         @Path("roomId") roomId: String,
         @Path("trackId") trackId: String,
     ): Response<DeleteResponse>
 
     @DELETE("api/queue/{roomId}/tracks")
-    fun deleteAllSongs(
+    suspend fun deleteAllSongs(
         @Path("roomId") roomId: String,
     ): Response<DeleteResponse>
 }

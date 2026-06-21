@@ -9,5 +9,5 @@ data class RoomResponse(
     val inviteCode: String,
     val createdBy: String,
     val participants: List<UserResponse>,
-    val createdAt: String
+    val createdAt: String?
 )
