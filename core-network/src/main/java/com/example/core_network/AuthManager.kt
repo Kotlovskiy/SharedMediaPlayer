@@ -311,6 +311,41 @@ class AuthManager (
         }
     }
 
+    suspend fun refreshAccessToken(): String? {
+        Log.d("AuthManager", "refreshAccessToken: Called (suspend)")
+
+        val currentAuthState = getAuthState()
+        val refreshToken = currentAuthState.refreshToken
+        if (refreshToken == null) {
+            Log.e("AuthManager", "refreshAccessToken: No refresh token")
+            return null
+        }
+
+        return suspendCancellableCoroutine { continuation ->
+            val service = getAuthService()
+            val tokenRequest = currentAuthState.createTokenRefreshRequest()
+
+            service.performTokenRequest(tokenRequest) { tokenResponse, ex ->
+                if (tokenResponse != null) {
+                    Log.i("AuthManager", "refreshAccessToken: Token refresh successful")
+                    currentAuthState.update(tokenResponse, null)
+                    saveAuthState(currentAuthState)
+                    val newAccessToken = currentAuthState.accessToken
+                    if (newAccessToken != null) {
+                        continuation.resume(newAccessToken)
+                    } else {
+                        continuation.resume(null)
+                    }
+                } else {
+                    Log.e("AuthManager", "refreshAccessToken: Failed", ex)
+                    continuation.resume(null)
+                }
+            }
+
+            continuation.invokeOnCancellation {}
+        }
+    }
+
     companion object {
         private const val PREFERENCES_NAME = "auth"
         private const val AUTH_STATE = "auth_state"

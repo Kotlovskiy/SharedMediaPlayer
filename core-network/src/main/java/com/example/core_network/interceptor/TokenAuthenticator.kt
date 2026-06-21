@@ -1,7 +1,10 @@
 package com.example.core_network.interceptor
 
+import android.util.Log
 import com.example.core_network.AuthManager
 import com.example.core_network.NetworkConstants
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
@@ -33,12 +36,15 @@ class TokenAuthenticator @Inject constructor(
             return accessToken
         }
 
-        var newToken: String? = null
-        authManager.refreshAccessToken(
-            onSuccess = { newToken = it },
-            onError = { newToken = null }
-        )
-
-        return newToken
+        return try {
+            runBlocking {
+                withTimeoutOrNull(10_000L) {
+                    authManager.refreshAccessToken()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("TokenAuthenticator", "Token refresh failed", e)
+            null
+        }
     }
 }
