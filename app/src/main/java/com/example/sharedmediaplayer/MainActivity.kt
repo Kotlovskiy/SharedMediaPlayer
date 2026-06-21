@@ -2,6 +2,7 @@ package com.example.sharedmediaplayer
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -147,6 +148,16 @@ fun MainContent() {
                 }
 
                 composable<RoomDestination> {
+                    BackHandler {
+                        val roomParams = currentTopBarParams.lastOrNull { it is RoomTopBarParams } as? RoomTopBarParams
+                        roomParams?.onExit?.invoke()
+                        currentTopBarParams = listOf()
+                        navController.navigate(route = HelloDestination) {
+                            popUpTo(HelloDestination) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }
+
                     RoomScreen(
                         setTopBarParams = { params ->
                             currentTopBarParams = currentTopBarParams + params
@@ -163,6 +174,13 @@ fun MainContent() {
                 }
 
                 composable<SettingsDestination> {
+                    BackHandler {
+                        currentTopBarParams = currentTopBarParams
+                            .toSet()
+                            .filter { it !is SettingsTopBarParams }
+                        navController.navigateUp()
+                    }
+
                     Settings(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                     )
