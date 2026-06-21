@@ -3,9 +3,11 @@ package com.example.hello.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -28,13 +30,12 @@ fun HelloScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Button(
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp, max = 120.dp),
             onClick = {
                 onCreateRoom()
             }
         ) {
             Text(
-                modifier = Modifier.fillMaxSize(),
                 text = stringResource(R.string.create_room),
                 textAlign = TextAlign.Center,
                 fontSize = 24.sp
@@ -44,13 +45,12 @@ fun HelloScreen(
         Spacer(modifier = Modifier.height(48.dp))
 
         Button(
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp, max = 120.dp),
             onClick = {
                 onJoinRoom()
             }
         ) {
             Text(
-                modifier = Modifier.fillMaxSize(),
                 text = stringResource(R.string.join_room),
                 textAlign = TextAlign.Center,
                 fontSize = 24.sp

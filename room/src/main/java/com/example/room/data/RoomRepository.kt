@@ -9,6 +9,8 @@ import com.example.core_network.dto.queue.TrackResponse
 import com.example.room.domain.Result
 import com.example.room.domain.Room
 import com.example.room.domain.Song
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class RoomRepository @Inject constructor(
@@ -80,4 +82,18 @@ class RoomRepository @Inject constructor(
                 Result.Success(Unit)
         }
 
+    fun observeTrackChanges(roomId: String): Flow<Result<TrackResponse>> =
+        roomDataSource.observeTrackChanges(roomId)
+            .map {
+                if (it.isSuccess) {
+                    val track = it.getOrNull()
+                    if(track != null) {
+                        Result.Success(track)
+                    } else {
+                        Result.Error(NetworkError.Unknown(-1))
+                    }
+                } else {
+                    Result.Error(NetworkError.Unknown(-1))
+                }
+            }
 }

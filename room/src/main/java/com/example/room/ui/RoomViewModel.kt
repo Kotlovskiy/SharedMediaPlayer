@@ -2,14 +2,18 @@ package com.example.room.ui
 
 import android.content.ComponentName
 import android.content.Context
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.toRoute
 import com.example.common_network_error.NetworkError
+import com.example.core_network.dto.queue.TrackResponse
 import com.example.room.data.RoomRepository
 import com.example.room.domain.Participant
 import com.example.room.domain.Result
@@ -43,7 +47,7 @@ sealed class Intent {
     class OnParticipantSettings(id: String) : Intent()
     class OnAddParticipant : Intent()
     class OnAddSong : Intent()
-    class OnDeleteSong(id: String) : Intent()
+    data class OnDeleteSong(val id: String) : Intent()
     object OnPlay : Intent()
     object OnPause : Intent()
     object OnNext : Intent()
@@ -89,10 +93,12 @@ class RoomViewModel @Inject constructor(
             ComponentName(appContext, PlaybackService::class.java)
         )
 
-        MediaController.Builder(appContext, sessionToken).buildAsync()
+        controllerFuture = MediaController.Builder(appContext, sessionToken).buildAsync()
 
         controllerFuture?.addListener({
-            _controller.value = controllerFuture?.get()
+            val tempController = controllerFuture?.get()
+            _controller.value = tempController
+            tempController?.let { setupPlayer(it, roomId) }
         }, ContextCompat.getMainExecutor(appContext))
 
         viewModelScope.launch {
@@ -106,15 +112,31 @@ class RoomViewModel @Inject constructor(
                 )
             }
         }
+
+        viewModelScope.launch {
+            roomRepository.observeTrackChanges(roomId).collect {
+                when(it) {
+                    is Result.Error -> Log.i("RoomViewModel", "Error")
+                    is Result.Success<TrackResponse> ->
+                        Log.i("RoomViewModel", "trackId: ${it.data.id}")
+                }
+            }
+        }
     }
 
     fun emit(intent: Intent) {
         viewModelScope.launch {
             when (intent) {
                 is Intent.OnBack -> {  }
-                is Intent.OnMusicsSwitch -> _state.emit(
-                    RoomUiState.MusicTab(listOf())
-                )
+                is Intent.OnMusicsSwitch ->
+                    when(val result = roomRepository.getQueue(roomId)) {
+                        is Result.Error -> sendErrorEffect(result.error)
+                        is Result.Success<List<Song>> -> _state.emit(
+                            RoomUiState.MusicTab(
+                                result.data,
+                            )
+                        )
+                    }
                 is Intent.OnParticipantSettings -> {  }
                 is Intent.OnParticipantsSwitch -> {
                     when(val result = roomRepository.getRoom(roomId)) {
@@ -134,7 +156,12 @@ class RoomViewModel @Inject constructor(
                 is Intent.OnAddSong -> {
                     _effect.send(RoomEffect.AddSongDialogOpen(roomId))
                 }
-                is Intent.OnDeleteSong -> {  }
+                is Intent.OnDeleteSong -> {
+                    when(val result = roomRepository.deleteSong(roomId, intent.id)) {
+                        is Result.Error -> sendErrorEffect(result.error)
+                        is Result.Success<*> -> emit(Intent.OnMusicsSwitch())
+                    }
+                }
                 Intent.OnPause -> { pause() }
                 Intent.OnPlay -> { play() }
                 Intent.OnNext -> {  }
@@ -169,5 +196,14 @@ class RoomViewModel @Inject constructor(
             MediaController.releaseFuture(it)
         }
         _controller.value = null
+    }
+
+    @androidx.annotation.OptIn(UnstableApi::class)
+    private fun setupPlayer(controller: MediaController, roomId: String) {
+        val uri = "ws://0d30-104-128-139-225.ngrok-free.app/api/stream/$roomId"
+        val mediaItem = MediaItem.fromUri(uri)
+        controller.setMediaItem(mediaItem)
+        controller.prepare()
+        controller.playWhenReady = true
     }
 }

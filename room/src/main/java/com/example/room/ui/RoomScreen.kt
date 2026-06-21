@@ -19,6 +19,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -68,14 +69,17 @@ fun RoomScreen(
     val musicController by viewModel.controller.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    setTopBarParams(
-        RoomTopBarParams(
-            roomId = viewModel.roomId,
-            roomName = viewModel.roomName,
-            showSettingsButton = true,
-            onExit = { viewModel.emit(Intent.OnBack()) }
+    DisposableEffect(viewModel.roomId) {
+        setTopBarParams(
+            RoomTopBarParams(
+                roomId = viewModel.roomId,
+                roomName = viewModel.roomName,
+                showSettingsButton = true,
+                onExit = { viewModel.emit(Intent.OnBack()) }
+            )
         )
-    )
+        onDispose {}
+    }
 
     LaunchedEffect(Unit) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

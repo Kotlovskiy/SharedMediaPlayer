@@ -1,12 +1,20 @@
 package com.example.room.data
 
+import com.example.common_network_error.NetworkError
 import com.example.core_network.ApiResult
+import com.example.core_network.StompClient
 import com.example.core_network.dto.queue.AddTrackRequest
 import com.example.core_network.dto.queue.MoveTrackRequest
+import com.example.core_network.dto.queue.TrackResponse
 import com.example.core_network.service.QueueService
 import com.example.core_network.service.RoomService
 import com.example.core_network.toApiResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
@@ -14,6 +22,7 @@ import javax.inject.Inject
 class RoomDataSource @Inject constructor(
     private val roomApi: RoomService,
     private val queueApi: QueueService,
+    private val stompClient: StompClient
 ) {
     suspend fun getRoom(roomId: String) = withContext(Dispatchers.IO) {
         try {
@@ -87,4 +96,31 @@ class RoomDataSource @Inject constructor(
             ApiResult.NetworkException(e)
         }
     }
+
+    private suspend fun connectToWebSocket(): Result<Unit> {
+        if (!stompClient.connected) {
+            return stompClient.connect("ws://0d30-104-128-139-225.ngrok-free.app/api/ws")
+        }
+        return Result.success(Unit)
+    }
+
+    fun observeTrackChanges(roomId: String): Flow<Result<TrackResponse>> = callbackFlow {
+        val result = connectToWebSocket()
+        if (result.isFailure) {
+            close()
+            return@callbackFlow
+        }
+        val destination = "/topic/room.$roomId.track.changed"
+        stompClient.subscribeDeserialized<TrackResponse>(destination)
+            .map { track ->
+                try {
+                    Result.success(track)
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            }
+            .collect { result ->
+                send(result)
+            }
+    }.flowOn(Dispatchers.IO)
 }

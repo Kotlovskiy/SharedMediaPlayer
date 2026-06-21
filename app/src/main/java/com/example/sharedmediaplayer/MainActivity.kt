@@ -1,6 +1,7 @@
 package com.example.sharedmediaplayer
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,7 +79,9 @@ fun MainContent() {
                                     (currentTopBarParams.last() as RoomTopBarParams)
                                         .onExit.invoke()
 
-                                    currentTopBarParams = currentTopBarParams.dropLast(1)
+                                    currentTopBarParams = listOf()
+
+                                    Log.i("MainActivity", currentTopBarParams.size.toString())
 
                                     navController.navigate(route = HelloDestination) {
                                         popUpTo(HelloDestination) {
@@ -101,7 +105,9 @@ fun MainContent() {
                             SettingsTopBar(
                                 onBack = {
                                     navController.navigateUp()
-                                    currentTopBarParams = currentTopBarParams.dropLast(1)
+                                    currentTopBarParams = currentTopBarParams
+                                        .toSet()
+                                        .filter { it !is SettingsTopBarParams }
                                 }
                             )
                         }
@@ -138,7 +144,8 @@ fun MainContent() {
                         },
                         onJoinRoom = {
                             navController.navigate(route = JoinDialog)
-                        }
+                        },
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
 
@@ -162,12 +169,16 @@ fun MainContent() {
                     Settings(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                     )
-                    currentTopBarParams = currentTopBarParams + SettingsTopBarParams
+                    DisposableEffect(Unit) {
+                        currentTopBarParams = currentTopBarParams + SettingsTopBarParams
+                        onDispose {}
+                    }
                 }
 
                 dialog<CreateDialog> {
                     CreateRoomDialog(
                         onConfirm = { id, name ->
+
                             navController.navigate(
                                 route = RoomDestination(
                                     roomId = id,

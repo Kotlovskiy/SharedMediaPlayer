@@ -75,6 +75,15 @@ object NetworkModule {
             .build()
 
     @Provides
+    @Singleton
+    fun provideStompClient(
+        okHttpClient: OkHttpClient,
+        json: Json
+    ): StompClient {
+        return StompClient(okHttpClient, json)
+    }
+
+    @Provides
     fun provideAuthService(retrofit: Retrofit): AuthService {
         return retrofit.create(AuthService::class.java)
     }

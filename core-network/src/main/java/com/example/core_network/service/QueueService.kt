@@ -20,7 +20,7 @@ interface QueueService {
         @Body request: AddTrackRequest
     ): Response<TrackResponse>
 
-    @GET("api/queue/{roomId}/tracks")
+    @GET("api/queue/{roomId}")
     suspend fun getQueue(
         @Path("roomId") roomId: String
     ): Response<QueueResponse>
