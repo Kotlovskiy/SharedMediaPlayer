@@ -160,6 +160,7 @@ class AuthManager (
 
         if (response != null) {
             Log.d("AuthManager", "authorizationIntentHandler: Valid response, exchanging code for tokens")
+            runBlocking { getAuthState().update(response, null) }
             exchangeCodeForTokens(
                 authResponse = response,
                 onAuthSuccess = {
