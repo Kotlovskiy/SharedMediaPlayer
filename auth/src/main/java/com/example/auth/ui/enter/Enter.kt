@@ -8,13 +8,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.auth.R
 import com.example.core_ui.theme.Typography
 
 @Composable
@@ -23,6 +30,8 @@ fun Enter(
     modifier: Modifier = Modifier,
     viewModel: EnterViewModel = hiltViewModel()
 ) {
+
+    var openAuth by remember { mutableStateOf(true) }
 
     val authLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -35,26 +44,49 @@ fun Enter(
                     toMainScreen()
                 },
                 onAuthError = {
-                    Log.i("errrrror", "error: ${it?.error}; message: ${it?.message}")
+                    openAuth = false
                 }
             )
         }
     }
 
-    LaunchedEffect(Unit) {
-        try {
-            viewModel.startAuth(authLauncher = authLauncher)
-        } catch (e: Exception) {
-            Log.i("in catch", e.message ?: "")
+    LaunchedEffect(openAuth) {
+        if (openAuth) {
+            try {
+                viewModel.startAuth(
+                    authLauncher = authLauncher,
+                    onError = { error ->
+                        Log.e("Enter", "Auth error: ${error.message}")
+                        openAuth = false
+                    }
+                )
+            } catch (e: Exception) {
+                openAuth = false
+            }
         }
     }
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.Bottom,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Пожалуйста, подождите", style = Typography.headlineMedium)
-        Spacer(Modifier.height(32.dp))
+        Text(
+            text = stringResource(R.string.wait_please),
+            style = Typography.headlineSmall
+        )
+
+        if(!openAuth) {
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = { openAuth = true }
+            ) {
+                Text(
+                    text = stringResource(R.string.try_again),
+                    style = Typography.labelMedium
+                )
+            }
+        }
     }
 }

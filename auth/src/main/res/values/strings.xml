@@ -11,4 +11,7 @@
     <string name="conflict">Пользователь уже существует</string>
     <string name="invalid_data">Неправильна почта или пароль</string>
     <string name="access_denied">Отказано в доступе</string>
+
+    <string name="wait_please">Пожалуйста, подождите</string>
+    <string name="try_again">Попробовать снова</string>
 </resources>

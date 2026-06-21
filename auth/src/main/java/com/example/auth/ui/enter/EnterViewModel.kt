@@ -9,15 +9,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class EnterViewModel @Inject constructor(
     val authManager: AuthManager
 ) : ViewModel() {
 
-    fun startAuth(authLauncher: ActivityResultLauncher<Intent>) {
+    fun startAuth(
+        authLauncher: ActivityResultLauncher<Intent>,
+        onError: (Exception) -> Unit
+    ) {
         viewModelScope.launch {
-            authManager.startAuthorization(authLauncher)
+            try {
+                authManager.startAuthorization(authLauncher)
+            } catch (e: Exception) {
+                onError(e)
+            }
         }
     }
 
