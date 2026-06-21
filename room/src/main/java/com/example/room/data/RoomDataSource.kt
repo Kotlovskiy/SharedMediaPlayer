@@ -99,7 +99,7 @@ class RoomDataSource @Inject constructor(
 
     private suspend fun connectToWebSocket(): Result<Unit> {
         if (!stompClient.connected) {
-            return stompClient.connect("ws://0d30-104-128-139-225.ngrok-free.app/api/ws")
+            return stompClient.connect("wss://0d30-104-128-139-225.ngrok-free.app/api/ws")
         }
         return Result.success(Unit)
     }

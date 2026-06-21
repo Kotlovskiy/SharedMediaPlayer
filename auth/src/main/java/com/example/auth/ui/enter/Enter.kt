@@ -60,7 +60,7 @@ fun Enter(
                         openAuth = false
                     }
                 )
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 openAuth = false
             }
         }
