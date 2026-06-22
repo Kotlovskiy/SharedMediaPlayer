@@ -4,10 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,6 +52,10 @@ import com.example.core_ui.theme.Typography
 import com.example.room.R
 import com.example.room.domain.Participant
 import com.example.room.domain.Song
+import sh.calvin.reorderable.ReorderableColumn
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.ReorderableLazyListState
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
 fun RoomScreen(
@@ -106,6 +113,7 @@ fun RoomScreen(
                 onSwitchToParticipants = { viewModel.emit(Intent.OnParticipantsSwitch()) },
                 onAddSong = { viewModel.emit(Intent.OnAddSong()) },
                 onDeleteSong = { viewModel.emit(Intent.OnDeleteSong(it)) },
+                onMove = { songId, newPos -> viewModel.emit(Intent.OnMove(songId, newPos)) },
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
             is RoomUiState.ParticipantsTab -> ParticipantsTab(
@@ -138,6 +146,7 @@ private fun MusicTab(
     onSwitchToParticipants: () -> Unit,
     onAddSong: () -> Unit,
     onDeleteSong: (String) -> Unit,
+    onMove: (String, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -153,7 +162,7 @@ private fun MusicTab(
             onClick = onAddSong
         )
 
-        MusicList(list = songs, onDelete = onDeleteSong)
+        MusicList(list = songs, onDelete = onDeleteSong, onMove = onMove)
     }
 }
 
@@ -261,19 +270,41 @@ private fun RoomAddButton(
 @Composable
 private fun MusicList(
     list: List<Song>,
-    onDelete: (String) -> Unit
+    onDelete: (String) -> Unit,
+    onMove: (String, Int) -> Unit
 ) {
-    LazyColumn {
+    val lazyListState = rememberLazyListState()
+    val reorderState = rememberReorderableLazyListState(
+        lazyListState = lazyListState,
+        onMove = { from, to ->
+            val item = list[from.index]
+            onMove(item.id, to.index)
+        }
+    )
+
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier.fillMaxSize()
+    ) {
         itemsIndexed(
-            items = list,
+            list,
             key = { _, item -> item.id }
-        ) { _, item ->
-            SongItem(
-                url = item.url,
-                title = item.title,
-                artist = item.artist,
-                onDelete = { onDelete(item.id) }
-            )
+        ) { index, item ->
+            ReorderableItem(
+                state = reorderState,
+                key = item.id
+            ) { isDragging ->
+                SongItem(
+                    url = item.url,
+                    title = item.title,
+                    artist = item.artist,
+                    onDelete = { onDelete(item.id) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .draggableHandle()
+                        .let { if (isDragging) it.shadow(elevation = 8.dp) else it }
+                )
+            }
         }
     }
 }
@@ -305,7 +336,7 @@ private fun SongItem(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(

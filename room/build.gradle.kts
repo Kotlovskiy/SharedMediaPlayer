@@ -30,6 +30,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.media3.ui)
     implementation(projects.coreUi)
     implementation(projects.coreNetwork)
@@ -54,6 +55,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
+
+    implementation(libs.reorderable)
 
     implementation(libs.bundles.coil)
 

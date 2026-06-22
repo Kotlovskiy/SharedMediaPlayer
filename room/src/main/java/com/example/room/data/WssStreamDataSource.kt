@@ -23,32 +23,26 @@ class WssStreamDataSource(
     private var remainingBytes = 0
 
     override fun open(p0: DataSpec): Long {
-        // Формируем WebSocket запрос
         val request = Request.Builder()
             .url(p0.uri.toString())
             .build()
 
-        // Устанавливаем соединение, передавая наш слушатель
         webSocket = okHttpClient.newWebSocket(request, dataStreamCollector)
 
-        // Возвращаем C.LENGTH_UNSET, так как длина потока неизвестна
         return C.LENGTH_UNSET.toLong()
     }
 
     override fun read(target: ByteArray, offset: Int, length: Int): Int {
-        // Если текущий фрагмент пуст, но данные есть, получаем следующий
         if (currentByteStream == null && dataStreamCollector.canStream()) {
             currentByteStream = dataStreamCollector.getNextStream().toByteArray()
             currentPosition = 0
             remainingBytes = currentByteStream?.size ?: 0
         }
 
-        // Если данных нет, возвращаем 0 (ожидаем новые данные)
         if (currentByteStream == null) {
             return 0
         }
 
-        // Читаем данные в целевой буфер
         val readSize = minOf(length, remainingBytes)
         currentByteStream?.copyInto(
             target,
@@ -60,7 +54,6 @@ class WssStreamDataSource(
         currentPosition += readSize
         remainingBytes -= readSize
 
-        // Если фрагмент полностью прочитан, освобождаем его
         if (remainingBytes == 0) {
             currentByteStream = null
         }
@@ -76,13 +69,11 @@ class WssStreamDataSource(
         webSocket?.cancel()
         currentByteStream = null
         remainingBytes = 0
-        // Очищаем буфер
         while (dataStreamCollector.canStream()) {
             dataStreamCollector.getNextStream()
         }
     }
 
-    // Фабрика для создания экземпляров DataSource
     class Factory(
         private val okHttpClient: OkHttpClient,
         private val dataStreamCollector: WssDataStreamCollector

@@ -20,6 +20,8 @@ import com.example.room.domain.Result
 import com.example.room.domain.Room
 import com.example.room.domain.Song
 import com.example.room.service.PlaybackService
+import com.example.room.ui.Intent.*
+import com.example.room.ui.RoomEffect.*
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -51,6 +53,7 @@ sealed class Intent {
     object OnPlay : Intent()
     object OnPause : Intent()
     object OnNext : Intent()
+    data class OnMove(val songId: String, val newPos: Int) : Intent()
 }
 
 sealed class RoomEffect {
@@ -127,8 +130,8 @@ class RoomViewModel @Inject constructor(
     fun emit(intent: Intent) {
         viewModelScope.launch {
             when (intent) {
-                is Intent.OnBack -> {  }
-                is Intent.OnMusicsSwitch ->
+                is OnBack -> {  }
+                is OnMusicsSwitch ->
                     when(val result = roomRepository.getQueue(roomId)) {
                         is Result.Error -> sendErrorEffect(result.error)
                         is Result.Success<List<Song>> -> _state.emit(
@@ -137,8 +140,8 @@ class RoomViewModel @Inject constructor(
                             )
                         )
                     }
-                is Intent.OnParticipantSettings -> {  }
-                is Intent.OnParticipantsSwitch -> {
+                is OnParticipantSettings -> {  }
+                is OnParticipantsSwitch -> {
                     when(val result = roomRepository.getRoom(roomId)) {
                         is Result.Error -> sendErrorEffect(result.error)
                         is Result.Success<Room> -> _state.emit(
@@ -149,22 +152,32 @@ class RoomViewModel @Inject constructor(
                         )
                     }
                 }
-                is Intent.OnAddParticipant -> {
+                is OnAddParticipant -> {
                     val inviteCode = (_state.value as RoomUiState.ParticipantsTab).inviteCode
-                    _effect.send(RoomEffect.AddParticipantDialogOpen(inviteCode = inviteCode))
+                    _effect.send(AddParticipantDialogOpen(inviteCode = inviteCode))
                 }
-                is Intent.OnAddSong -> {
-                    _effect.send(RoomEffect.AddSongDialogOpen(roomId))
+                is OnAddSong -> {
+                    _effect.send(AddSongDialogOpen(roomId))
                 }
-                is Intent.OnDeleteSong -> {
+                is OnDeleteSong -> {
                     when(val result = roomRepository.deleteSong(roomId, intent.id)) {
                         is Result.Error -> sendErrorEffect(result.error)
-                        is Result.Success<*> -> emit(Intent.OnMusicsSwitch())
+                        is Result.Success<*> -> emit(OnMusicsSwitch())
                     }
                 }
-                Intent.OnPause -> { pause() }
-                Intent.OnPlay -> { play() }
-                Intent.OnNext -> {  }
+                OnPause -> { pause() }
+                OnPlay -> { play() }
+                OnNext -> {  }
+                is OnMove -> {
+                    when(val result = roomRepository.moveSong(
+                        roomId = roomId,
+                        trackId = intent.songId,
+                        newPos = intent.newPos
+                    )) {
+                        is Result.Error -> sendErrorEffect(result.error)
+                        is Result.Success<*> -> emit(OnMusicsSwitch())
+                    }
+                }
             }
         }
     }
@@ -179,14 +192,14 @@ class RoomViewModel @Inject constructor(
 
     private suspend fun sendErrorEffect(error: NetworkError) {
         when(error) {
-            NetworkError.Conflict -> _effect.send(RoomEffect.ShowUnknownError)
-            NetworkError.Forbidden -> _effect.send(RoomEffect.ShowForbiddenError)
-            NetworkError.InvalidData -> _effect.send(RoomEffect.ShowUnknownError)
-            NetworkError.NoInternet -> _effect.send(RoomEffect.ShowInternetError)
-            NetworkError.NotFound -> _effect.send(RoomEffect.ShowNotFoundError)
-            NetworkError.ServerError -> _effect.send(RoomEffect.ShowServerError)
-            NetworkError.Unauthorized -> _effect.send(RoomEffect.UnauthorizedError)
-            is NetworkError.Unknown -> _effect.send(RoomEffect.ShowUnknownError)
+            NetworkError.Conflict -> _effect.send(ShowUnknownError)
+            NetworkError.Forbidden -> _effect.send(ShowForbiddenError)
+            NetworkError.InvalidData -> _effect.send(ShowUnknownError)
+            NetworkError.NoInternet -> _effect.send(ShowInternetError)
+            NetworkError.NotFound -> _effect.send(ShowNotFoundError)
+            NetworkError.ServerError -> _effect.send(ShowServerError)
+            NetworkError.Unauthorized -> _effect.send(UnauthorizedError)
+            is NetworkError.Unknown -> _effect.send(ShowUnknownError)
         }
     }
 
