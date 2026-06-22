@@ -49,6 +49,8 @@ fun Enter(
                     openAuth = false
                 }
             )
+        } else if (result.resultCode == Activity.RESULT_CANCELED) {
+            openAuth = false
         }
     }
 
