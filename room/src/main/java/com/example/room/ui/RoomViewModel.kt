@@ -213,8 +213,11 @@ class RoomViewModel @Inject constructor(
 
     @androidx.annotation.OptIn(UnstableApi::class)
     private fun setupPlayer(controller: MediaController, roomId: String) {
-        val uri = "wss://0d30-104-128-139-225.ngrok-free.app/api/stream/$roomId"
-        val mediaItem = MediaItem.fromUri(uri)
+        val uri = "http://bore.pub:4734/api/media/stream/$roomId"
+        val mediaItem = MediaItem.Builder()
+            .setUri(uri)
+            .setMimeType("audio/mpeg")
+            .build()
         controller.setMediaItem(mediaItem)
         controller.prepare()
         controller.playWhenReady = true

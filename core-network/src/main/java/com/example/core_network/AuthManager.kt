@@ -8,6 +8,7 @@ import androidx.activity.result.ActivityResultLauncher
 import net.openid.appauth.AuthState
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import com.example.core_network.NetworkConstants.BASE_URL
 import com.example.storage.CryptoManager
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -349,8 +350,7 @@ class AuthManager (
     companion object {
         private const val PREFERENCES_NAME = "auth"
         private const val AUTH_STATE = "auth_state"
-        private const val ISSUER_URI =
-            "https://97ad-104-128-139-225.ngrok-free.app/realms/music-realm"
+        private const val ISSUER_URI = "https://keycloak-production-8336.up.railway.app/realms/music-realm"
 
         private const val BASE_SCOPE = "openid profile offline_access"
 
