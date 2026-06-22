@@ -96,4 +96,6 @@ class RoomRepository @Inject constructor(
                     Result.Error(NetworkError.Unknown(-1))
                 }
             }
+
+    fun observePlaybackSession(roomId: String) = roomDataSource.observePlaybackSession(roomId)
 }

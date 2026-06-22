@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
@@ -21,6 +23,10 @@ class RoomDataSource @Inject constructor(
     private val queueApi: QueueService,
     private val stompClient: StompClient
 ) {
+    private val connectMutex = Mutex()
+    @Volatile
+    private var connectionAttempts = 0
+    private val maxRetryAttempts = 1
     suspend fun getRoom(roomId: String) = withContext(Dispatchers.IO) {
         try {
             roomApi.getRoom(roomId).toApiResult()
@@ -97,11 +103,24 @@ class RoomDataSource @Inject constructor(
         }
     }
 
-    private suspend fun connectToWebSocket(): Result<Unit> {
-        if (!stompClient.connected) {
-            return stompClient.connect("ws://bore.pub:63890/ws/websocket")
+    private suspend fun connectToWebSocket(): Result<Unit> = connectMutex.withLock {
+        if (stompClient.connected) {
+            return Result.success(Unit)
         }
-        return Result.success(Unit)
+
+        if (connectionAttempts >= maxRetryAttempts) {
+            return Result.failure(IllegalStateException("Max connection attempts reached"))
+        }
+
+        connectionAttempts++
+
+        return try {
+            stompClient.connect("ws://bore.pub:63890/ws/websocket")
+            connectionAttempts = 0
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     fun observeTrackChanges(roomId: String): Flow<Result<TrackResponse>> = callbackFlow {
@@ -119,6 +138,20 @@ class RoomDataSource @Inject constructor(
                     Result.failure(e)
                 }
             }
+            .collect { result ->
+                send(result)
+            }
+
+    }.flowOn(Dispatchers.IO)
+
+    fun observePlaybackSession(roomId: String) = callbackFlow {
+        val result = connectToWebSocket()
+        if (result.isFailure) {
+            close()
+            return@callbackFlow
+        }
+        val destination = "/exchange/amq.topic/room.$roomId.session.started"
+        stompClient.subscribe(destination)
             .collect { result ->
                 send(result)
             }

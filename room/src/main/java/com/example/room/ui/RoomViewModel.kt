@@ -101,7 +101,6 @@ class RoomViewModel @Inject constructor(
         controllerFuture?.addListener({
             val tempController = controllerFuture?.get()
             _controller.value = tempController
-            tempController?.let { setupPlayer(it, roomId) }
         }, ContextCompat.getMainExecutor(appContext))
 
         viewModelScope.launch {
@@ -113,6 +112,15 @@ class RoomViewModel @Inject constructor(
                         result.data.inviteCode
                     )
                 )
+            }
+        }
+
+        viewModelScope.launch {
+            roomRepository.observePlaybackSession(roomId).collect { str ->
+                Log.i("RoomViewModel", str)
+                _controller.value?.let { controller ->
+                    setupPlayer(controller, roomId)
+                }
             }
         }
 
