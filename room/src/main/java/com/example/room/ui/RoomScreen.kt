@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,8 +27,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -46,15 +49,12 @@ import com.example.core_ui.icons.add_circle
 import com.example.core_ui.icons.arrow_back
 import com.example.core_ui.icons.delete
 import com.example.core_ui.icons.image
-import com.example.core_ui.icons.more_vert
 import com.example.core_ui.icons.settings
 import com.example.core_ui.theme.Typography
 import com.example.room.R
 import com.example.room.domain.Participant
 import com.example.room.domain.Song
-import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.ReorderableLazyListState
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
@@ -162,7 +162,12 @@ private fun MusicTab(
             onClick = onAddSong
         )
 
-        MusicList(list = songs, onDelete = onDeleteSong, onMove = onMove)
+        MusicList(
+            list = songs,
+            onDelete = onDeleteSong,
+            onMove = onMove,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -271,7 +276,8 @@ private fun RoomAddButton(
 private fun MusicList(
     list: List<Song>,
     onDelete: (String) -> Unit,
-    onMove: (String, Int) -> Unit
+    onMove: (String, Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
     val reorderState = rememberReorderableLazyListState(
@@ -284,12 +290,12 @@ private fun MusicList(
 
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     ) {
         itemsIndexed(
             list,
             key = { _, item -> item.id }
-        ) { index, item ->
+        ) { _, item ->
             ReorderableItem(
                 state = reorderState,
                 key = item.id
@@ -339,16 +345,21 @@ private fun SongItem(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val placeholder = rememberVectorPainter(image)
         AsyncImage(
             model = url,
+            modifier = Modifier.size(60.dp).clip(RoundedCornerShape(16.dp)),
             contentDescription = null,
-            placeholder = rememberVectorPainter(image)
+            placeholder = placeholder,
+            error = placeholder,
+            fallback = placeholder,
+            contentScale = ContentScale.Crop
         )
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            Text(text = title, style = Typography.titleLarge)
-            Text(text = artist, style = Typography.bodyMedium)
+            Text(text = title, style = Typography.bodyMedium)
+            Text(text = artist, style = Typography.bodySmall)
         }
         IconButton(onClick = { onDelete() }) {
             Icon(imageVector = delete, contentDescription = "")
@@ -371,6 +382,7 @@ private fun ParticipantItem(
             style = Typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
+        /*
         IconButton(
             onClick = { onMore() }
         ) {
@@ -379,6 +391,7 @@ private fun ParticipantItem(
                 contentDescription = ""
             )
         }
+        */
     }
 }
 
